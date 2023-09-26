@@ -1,0 +1,106 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"idle": {
+			"loop": true,
+			"bones": {
+				"tail": {
+					"rotation": {
+						"vector": [0, "math.cos(query.anim_time*300)*-14 ", 0]
+					}
+				}
+			}
+		},
+		"walk": {
+			"loop": true,
+			"bones": {
+				"body": {
+					"position": {
+						"vector": [0, "math.cos(query.anim_time*300)*0.1 - 0.4", 0]
+					}
+				},
+				"tail": {
+					"rotation": {
+						"vector": [0, "math.sin(query.anim_time*300)*25", 0]
+					}
+				},
+				"flleg": {
+					"rotation": {
+						"vector": ["math.cos(query.anim_time*300)*-25", 0, 0]
+					},
+					"position": {
+						"vector": [0, "math.sin(query.anim_time*300)*-0.3 + 0.3", 0]
+					}
+				},
+				"frleg": {
+					"rotation": {
+						"vector": ["math.cos(query.anim_time*300)*25", 0, 0]
+					},
+					"position": {
+						"vector": [0, "math.sin(query.anim_time*300)*0.3 + 0.3", 0]
+					}
+				},
+				"blleg": {
+					"rotation": {
+						"vector": ["math.cos(query.anim_time*300)*25", 0, 0]
+					},
+					"position": {
+						"vector": [0, "math.sin(query.anim_time*300)*0.3 + 0.3", 0]
+					}
+				},
+				"brleg": {
+					"rotation": {
+						"vector": ["math.cos(query.anim_time*300)*-25", 0, 0]
+					},
+					"position": {
+						"vector": [0, "math.sin(query.anim_time*300)*-0.3 + 0.3", 0]
+					}
+				}
+			}
+		},
+		"sleep": {
+			"loop": true,
+			"bones": {
+				"body": {
+					"position": {
+						"vector": [0, -3.5, 0]
+					}
+				},
+				"head": {
+					"rotation": {
+						"vector": [15, 0, 0]
+					}
+				},
+				"tail": {
+					"rotation": {
+						"vector": [2.5, "math.sin(query.anim_time*100)*15", 0]
+					}
+				},
+				"flleg": {
+					"rotation": {
+						"vector": [-74.66019, 48.97354, 11.69208]
+					}
+				},
+				"frleg": {
+					"rotation": {
+						"vector": [-81.9861, -41.61524, -9.10416]
+					},
+					"position": {
+						"vector": [0, -0.25, 0]
+					}
+				},
+				"blleg": {
+					"rotation": {
+						"vector": [-84.07764, 32.36121, 3.17805]
+					}
+				},
+				"brleg": {
+					"rotation": {
+						"vector": [-84.48615, -24.89837, -2.3273]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": [
+    "minecraft:desert"
+  ],
+  "spawners": {
+    "type": "za:mamba",
+    "weight": 15,
+    "minCount": 1,
+    "maxCount": 3
+  }
+}

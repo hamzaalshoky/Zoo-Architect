@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "item": "za:frilled_lizard_meat"
+    },
+    "title": {
+      "translate": "advancements.adventure.lizard_hit.title"
+    },
+    "description": {
+      "translate": "advancements.adventure.lizard_hit.description"
+    }
+  },
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "entity": {
+          "type": "za:frilled_lizard"
+        }
+      }
+    }
+  }
+}

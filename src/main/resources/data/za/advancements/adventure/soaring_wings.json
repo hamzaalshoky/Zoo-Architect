@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:feather"
+    },
+    "title": {
+      "translate": "advancements.adventure.soaring_wings.title"
+    },
+    "description": {
+      "translate": "advancements.adventure.soaring_wings.description"
+    }
+  },
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "entity": {
+          "type": "za:steppe_eagle"
+        }
+      }
+    },
+    "requirement": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "entity": {
+          "type": "za:steppe_eagle"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " E ",
+    "AAA",
+    " E "
+
+  ],
+  "key": {
+    "A": {
+      "item": "za:cooked_shrimp"
+    },
+    "E": {
+      "item": "minecraft:bread"
+    }
+  },
+  "result": {
+    "item": "za:shrimp_sandwich"
+  }
+}

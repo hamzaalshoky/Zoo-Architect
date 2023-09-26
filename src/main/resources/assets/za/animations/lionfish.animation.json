@@ -1,0 +1,87 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"swim": {
+			"loop": true,
+			"animation_length": 2,
+			"bones": {
+				"body": {
+					"rotation": {
+						"vector": [0, "math.sin((query.anim_time*720)*0.25)*2.5", 0]
+					}
+				},
+				"dorsalFin": {
+					"rotation": {
+						"vector": [0, 0, "math.sin((query.anim_time*720)*0.25-45)*1.5"]
+					}
+				},
+				"tail": {
+					"rotation": {
+						"vector": [0, "math.sin((query.anim_time*720)*0.25-45)*15", 0]
+					}
+				},
+				"caudalFin": {
+					"rotation": {
+						"vector": [0, "math.sin((query.anim_time*720)*0.25-90)*15", 0]
+					}
+				},
+				"rightPelvicFin": {
+					"rotation": {
+						"vector": [0, 0, "math.sin((query.anim_time*720)*0.25-90)*2.5"]
+					}
+				},
+				"leftPelvicFin": {
+					"rotation": {
+						"vector": [0, 0, "math.sin((query.anim_time*720)*0.25-90)*2.5"]
+					}
+				},
+				"rightPecFin": {
+					"rotation": {
+						"vector": [0, 0, "math.sin((query.anim_time*720)*0.25-45)*5"]
+					}
+				},
+				"leftPecFin": {
+					"rotation": {
+						"vector": [0, 0, "math.sin((query.anim_time*720)*0.25-45)*5"]
+					}
+				}
+			}
+		},
+		"bite": {
+			"animation_length": 0.5,
+			"bones": {
+				"body": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.1667": {
+							"vector": [-5, 0, 0],
+							"easing": "easeInOutSine"
+						},
+						"0.375": {
+							"vector": [0, 0, 0],
+							"easing": "easeInOutSine"
+						}
+					}
+				},
+				"mouth": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.125": {
+							"vector": [37.5, 0, 0],
+							"easing": "easeInOutSine"
+						},
+						"0.3333": {
+							"vector": [0, 0, 0],
+							"easing": "easeInOutSine"
+						}
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

@@ -1,0 +1,68 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 32,
+				"texture_height": 32,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 1.5,
+				"visible_bounds_offset": [0, 0.25, 0]
+			},
+			"bones": [
+				{
+					"name": "Bass",
+					"pivot": [0, 3, 0]
+				},
+				{
+					"name": "Body",
+					"parent": "Bass",
+					"pivot": [0, 3, -4],
+					"cubes": [
+						{"origin": [-1.5, 0.5, -5], "size": [3, 5, 8], "uv": [0, 0]},
+						{"origin": [0, 5.5, -2], "size": [0, 2, 5], "uv": [15, 0]},
+						{"origin": [0, -0.5, 0], "size": [0, 2, 3], "uv": [20, 11]},
+						{"origin": [0, -0.5, -4], "size": [0, 2, 3], "uv": [0, 0]}
+					]
+				},
+				{
+					"name": "right_fin",
+					"parent": "Body",
+					"pivot": [-1.5, 2.5, -4],
+					"rotation": [0, 52.5, 0],
+					"cubes": [
+						{"origin": [-4.5, 1.5, -4], "size": [3, 2, 0], "uv": [10, 14], "mirror": true}
+					]
+				},
+				{
+					"name": "left_fin",
+					"parent": "Body",
+					"pivot": [1.5, 2.5, -4],
+					"rotation": [0, -52.5, 0],
+					"cubes": [
+						{"origin": [1.5, 1.5, -4], "size": [3, 2, 0], "uv": [10, 14]}
+					]
+				},
+				{
+					"name": "head",
+					"parent": "Body",
+					"pivot": [0, 2, -5],
+					"cubes": [
+						{"origin": [-1, 0.5, -8], "size": [2, 4, 3], "uv": [21, 21]}
+					]
+				},
+				{
+					"name": "Tail2",
+					"parent": "Body",
+					"pivot": [0, 3.16667, 3],
+					"cubes": [
+						{"origin": [-1, 1.5, 2], "size": [2, 3, 5], "uv": [0, 14]},
+						{"origin": [0, 0.5, 5], "size": [0, 5, 4], "uv": [15, 14]},
+						{"origin": [0, -0.5, 3], "size": [0, 2, 1], "uv": [0, 14]}
+					]
+				}
+			]
+		}
+	]
+}

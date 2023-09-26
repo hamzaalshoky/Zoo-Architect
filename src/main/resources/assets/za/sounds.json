@@ -1,0 +1,74 @@
+{
+  "lion_ambient": {
+    "subtitle": "sounds.za.lion_roars",
+    "sounds": [
+      "za:lion_ambient"
+    ]
+  },
+  "lion_hurt": {
+    "subtitle": "sounds.za.lion_hurt",
+    "sounds": [
+      "za:lion_hurt"
+    ]
+  },
+  "lion_death": {
+    "subtitle": "sounds.za.lion_death",
+    "sounds": [
+      "za:lion_death"
+    ]
+  },
+  "jaguar_pounce": {
+    "subtitle": "sounds.za.jaguar_pounce",
+    "sounds": [
+      "za:jaguar_pounce"
+    ]
+  },
+  "record_boscage": {
+    "subtitle": "sounds.za.boscage",
+    "sounds": [
+      "za:record_boscage"
+    ]
+  },
+  "rattle": {
+    "subtitle": "sounds.za.rattle",
+    "sounds": [
+      "za:rattle"
+    ]
+  },
+  "record_parch": {
+    "subtitle": "sounds.za.parch",
+    "sounds": [
+      "za:record_parch"
+    ]
+  },
+  "hiss": {
+    "subtitle": "sounds.za.hiss",
+    "sounds": [
+      "za:hiss"
+    ]
+  },
+  "snake_hurt": {
+    "subtitle": "sounds.za.snake_hurt",
+    "sounds": [
+      "za:snake_hurt"
+    ]
+  },
+  "snake_die": {
+    "subtitle": "sounds.za.snake_die",
+    "sounds": [
+      "za:snake_die"
+    ]
+  },
+  "tamarin_ambient": {
+    "subtitle": "sounds.za.tamarin_ambient",
+    "sounds": [
+      "za:tamarin_ambient"
+    ]
+  },
+  "seal_ambient": {
+    "subtitle": "sounds.za.seal_ambient",
+    "sounds": [
+      "za:seal_ambient"
+    ]
+  }
+}

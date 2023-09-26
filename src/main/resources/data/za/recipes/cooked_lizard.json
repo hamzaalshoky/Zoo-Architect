@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "za:frilled_lizard_meat"
+  },
+  "result": "za:cooked_frilled_lizard_meat",
+  "experience": 0.35,
+  "cookingtime": 200
+}

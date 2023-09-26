@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "za:cobra_fang"
+    },
+    "title": {
+      "translate": "advancements.adventure.deadly.title"
+    },
+    "description": {
+      "translate": "advancements.adventure.deadly.description"
+    }
+  },
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_kill_entity",
+      "conditions": {
+        "entity": {
+          "type": "za:great_white_shark"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "deadly"
+    ]
+  ]
+}

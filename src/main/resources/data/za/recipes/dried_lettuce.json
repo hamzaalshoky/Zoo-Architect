@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "za:sea_lettuce"
+  },
+  "result": "za:dried_sea_lettuce",
+  "experience": 0.35,
+  "cookingtime": 200
+}

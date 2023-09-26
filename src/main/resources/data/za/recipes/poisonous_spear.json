@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  #",
+    " X ",
+    "X  "
+  ],
+  "key": {
+    "#": {
+      "item": "za:poisonous_spine"
+    },
+    "X": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "za:poisonous_spear"
+  }
+}
+

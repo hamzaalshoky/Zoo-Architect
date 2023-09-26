@@ -1,0 +1,26 @@
+package net.itshamza.za.entity.custom.ai;
+
+import net.itshamza.za.entity.custom.CapybaraEntity;
+import net.itshamza.za.entity.custom.FennecFoxEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
+
+import java.util.EnumSet;
+
+public class FoxSleepGoal extends Goal {
+    private final FennecFoxEntity capy;
+
+    public FoxSleepGoal(FennecFoxEntity capy) {
+        this.capy = capy;
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP));
+    }
+
+    @Override
+    public boolean canUse() {
+        return capy.isSleeping() && capy.getLastHurtByMob() == null;
+    }
+
+    @Override
+    public void start() {
+        this.capy.getNavigation().stop();
+    }
+}

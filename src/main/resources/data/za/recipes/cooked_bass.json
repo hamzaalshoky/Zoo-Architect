@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "za:raw_bass"
+  },
+  "result": "za:cooked_bass",
+  "experience": 0.35,
+  "cookingtime": 200
+}

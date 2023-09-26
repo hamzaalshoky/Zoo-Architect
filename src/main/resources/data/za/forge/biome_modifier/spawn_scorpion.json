@@ -1,0 +1,12 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": [
+    "minecraft:desert"
+  ],
+  "spawners": {
+    "type": "za:scorpion",
+    "weight": 30,
+    "minCount": 1,
+    "maxCount": 3
+  }
+}

@@ -1,0 +1,64 @@
+package net.itshamza.za.event;
+
+import net.itshamza.za.ZooArchitect;
+import net.itshamza.za.entity.custom.FennecFoxEntity;
+import net.itshamza.za.entity.custom.FrilledLizardEntity;
+import net.itshamza.za.entity.custom.JaguarEntity;
+import net.itshamza.za.entity.custom.MouseEntity;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Husk;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+
+
+@Mod.EventBusSubscriber(modid = ZooArchitect.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+public class ServerEvents {
+
+    @SubscribeEvent
+    public void onEntityJoinWorld(LivingSpawnEvent.SpecialSpawn event) {
+        try {
+            if (event.getEntity() != null && event.getEntity() instanceof Husk) {
+                Husk spider = (Husk) event.getEntity();
+                spider.targetSelector.addGoal(2, new NearestAttackableTargetGoal(spider, FennecFoxEntity.class, 1, true, false, null));
+            }
+            if (event.getEntity() != null && event.getEntity() instanceof Fox) {
+                Fox spider = (Fox) event.getEntity();
+                spider.targetSelector.addGoal(2, new NearestAttackableTargetGoal(spider, MouseEntity.class, 1, true, false, null));
+            }
+            if (event.getEntity() != null && event.getEntity() instanceof Cat) {
+                Cat spider = (Cat) event.getEntity();
+                spider.targetSelector.addGoal(2, new NearestAttackableTargetGoal(spider, MouseEntity.class, 1, true, false, null));
+            }
+            if (event.getEntity() != null && event.getEntity() instanceof Creeper) {
+                Creeper creeper = (Creeper) event.getEntity();
+                creeper.targetSelector.addGoal(3, new AvoidEntityGoal<>(creeper, JaguarEntity.class, 6.0F, 1.0D, 1.2D));
+            }
+            if (event.getEntity() != null && event.getEntity() instanceof Rabbit) {
+                Rabbit creeper = (Rabbit) event.getEntity();
+                creeper.targetSelector.addGoal(3, new AvoidEntityGoal<>(creeper, FennecFoxEntity.class, 6.0F, 1.0D, 1.2D));
+            }
+            if (event.getEntity() != null && event.getEntity() instanceof Monster) {
+                Monster creeper = (Monster) event.getEntity();
+                creeper.targetSelector.addGoal(0, new AvoidEntityGoal<>(creeper, FrilledLizardEntity.class, 6.0F, 1.0D, 1.2D));
+            }
+            if (event.getEntity() != null && event.getEntity() instanceof Bee) {
+                Bee creeper = (Bee) event.getEntity();
+                creeper.targetSelector.addGoal(1, new AvoidEntityGoal<>(creeper, FrilledLizardEntity.class, 6.0F, 1.0D, 1.2D));
+            }
+        } catch (Exception e) {
+            ZooArchitect.LOGGER.warn("Tried to add unique behaviors to vanilla mobs and encountered an error");
+        }
+    }
+}

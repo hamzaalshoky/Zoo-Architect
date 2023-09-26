@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#forge:is_jungle",
+  "features": "za:pineapple_placed",
+  "step": "vegetal_decoration"
+}

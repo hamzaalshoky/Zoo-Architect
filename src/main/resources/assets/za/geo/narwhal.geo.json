@@ -1,0 +1,27 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.narwhal",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 5,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "narwhal",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-4, 0, -17], "size": [10, 10, 27], "uv": [0, 0]},
+						{"origin": [-3, 2, 10], "size": [8, 5, 10], "uv": [20, 37]},
+						{"origin": [-6, 4.5, 20], "size": [13, 0, 7], "uv": [39, 37]},
+						{"origin": [0, 4, -33], "size": [2, 2, 16], "uv": [0, 37]}
+					]
+				}
+			]
+		}
+	]
+}

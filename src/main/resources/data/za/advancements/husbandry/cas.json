@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "item": "za:raw_crab_leg"
+    },
+    "title": {
+      "translate": "advancements.adventure.cas.title"
+    },
+    "description": {
+      "translate": "advancements.adventure.cas.description"
+    }
+  },
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "entity": {
+          "type": "za:crab"
+        }
+      }
+    }
+  }
+}

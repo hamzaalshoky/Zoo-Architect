@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "item": "za:chameleon_tail"
+    },
+    "title": {
+      "translate": "advancements.husbandry.camoflague.title"
+    },
+    "description": {
+      "translate": "advancements.husbandry.camoflague.description"
+    }
+  },
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "za:chameleon_tail"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

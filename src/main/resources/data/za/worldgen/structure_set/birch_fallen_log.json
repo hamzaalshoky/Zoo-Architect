@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "za:birch_fallen_log",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "salt": 1494697532,
+    "spacing": 20,
+    "separation": 5,
+    "type": "minecraft:random_spread"
+  }
+}

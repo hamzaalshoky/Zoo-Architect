@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:cod"
+    },
+    "title": {
+      "translate": "advancements.husbandry.happyfeet.title"
+    },
+    "description": {
+      "translate": "advancements.husbandry.happyfeet.description"
+    }
+  },
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "entity": {
+          "type": "za:penguin"
+        }
+      }
+    }
+  }
+}

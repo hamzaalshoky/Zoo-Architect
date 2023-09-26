@@ -1,0 +1,91 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.manta_ray",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 6,
+				"visible_bounds_height": 1.5,
+				"visible_bounds_offset": [0, 0.25, 0]
+			},
+			"bones": [
+				{
+					"name": "body",
+					"pivot": [0.5, 3.5, -6],
+					"cubes": [
+						{"origin": [-10, 0, -14], "size": [21, 7, 16], "uv": [0, 0]},
+						{"origin": [-8, 2, 2], "size": [17, 5, 9], "uv": [58, 0]},
+						{"origin": [3, 3, 2], "size": [8, 2, 11], "uv": [20, 68], "mirror": true},
+						{"origin": [-10, 3, 2], "size": [8, 2, 11], "uv": [20, 68]}
+					]
+				},
+				{
+					"name": "rightLobe",
+					"parent": "body",
+					"pivot": [10, 3, -14],
+					"cubes": [
+						{"origin": [1, 0, -20], "size": [9, 4, 6], "uv": [74, 70]}
+					]
+				},
+				{
+					"name": "leftLobe",
+					"parent": "body",
+					"pivot": [-9, 3, -14],
+					"cubes": [
+						{"origin": [-9, 0, -20], "size": [9, 4, 6], "uv": [74, 70], "mirror": true}
+					]
+				},
+				{
+					"name": "tail",
+					"parent": "body",
+					"pivot": [0.5, 4, 11],
+					"cubes": [
+						{"origin": [-0.5, 3, 11], "size": [2, 2, 9], "uv": [0, 23]}
+					]
+				},
+				{
+					"name": "tail2",
+					"parent": "tail",
+					"pivot": [0.5, 3.5, 20],
+					"cubes": [
+						{"origin": [0, 3, 20], "size": [1, 1, 18], "uv": [0, 68]}
+					]
+				},
+				{
+					"name": "rightFin",
+					"parent": "body",
+					"pivot": [11, 4, 1],
+					"cubes": [
+						{"origin": [11, 3, -9], "size": [11, 2, 22], "uv": [44, 25], "mirror": true}
+					]
+				},
+				{
+					"name": "rightFinTip",
+					"parent": "rightFin",
+					"pivot": [22, 4, 1.5],
+					"cubes": [
+						{"origin": [22, 3, -7], "size": [16, 2, 17], "uv": [0, 49], "mirror": true}
+					]
+				},
+				{
+					"name": "leftFin",
+					"parent": "body",
+					"pivot": [-10, 4, 1],
+					"cubes": [
+						{"origin": [-21, 3, -9], "size": [11, 2, 22], "uv": [44, 25]}
+					]
+				},
+				{
+					"name": "leftFinTip",
+					"parent": "leftFin",
+					"pivot": [-21, 4, 1.5],
+					"cubes": [
+						{"origin": [-37, 3, -7], "size": [16, 2, 17], "uv": [0, 49]}
+					]
+				}
+			]
+		}
+	]
+}

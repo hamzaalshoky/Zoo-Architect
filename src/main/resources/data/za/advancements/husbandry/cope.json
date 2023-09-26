@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "item": "za:copepod_meat"
+    },
+    "title": {
+      "translate": "advancements.adventure.cope.title"
+    },
+    "description": {
+      "translate": "advancements.adventure.cope.description"
+    }
+  },
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "entity": {
+          "type": "za:copepod"
+        }
+      }
+    }
+  }
+}

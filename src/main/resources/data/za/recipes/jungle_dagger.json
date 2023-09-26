@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#",
+    "X"
+  ],
+  "key": {
+    "#": {
+      "item": "za:jaguar_tooth"
+    },
+    "X": {
+      "item": "minecraft:bamboo"
+    }
+  },
+  "result": {
+    "item": "za:jungle_dagger"
+  }
+}
