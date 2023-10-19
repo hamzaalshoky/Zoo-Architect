@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " E ",
+    " A ",
+    " E "
+
+  ],
+  "key": {
+    "A": {
+      "item": "za:cheese"
+    },
+    "E": {
+      "item": "minecraft:bread"
+    }
+  },
+  "result": {
+    "item": "za:cheese_sandwich"
+  }
+}

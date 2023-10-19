@@ -250,6 +250,16 @@ public class ModItems {
             () -> new ForgeSpawnEggItem(ModEntityCreator.MOUSE,16252968, 0,
                     new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
 
+    public static final RegistryObject<Item> RAT_POISON = ITEMS.register("rat_poison",
+            () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+
+    public static final RegistryObject<Item> SQUIRREL_SPAWN_EGG = ITEMS.register("squirrel_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.SQUIRREL,7227967, 7493710,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+    public static final RegistryObject<Item> OPOSSUM_SPAWN_EGG = ITEMS.register("opossum_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.OPOSSUM,7227967, 7493710,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+
    public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

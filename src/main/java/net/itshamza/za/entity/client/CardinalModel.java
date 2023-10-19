@@ -14,7 +14,7 @@ public class CardinalModel extends AnimatedGeoModel<CardinalEntity> {
 
     @Override
     public ResourceLocation getTextureResource(CardinalEntity object) {
-        return new ResourceLocation(ZooArchitect.MOD_ID, "textures/entity/cardinal/cardinal.png");
+        return new ResourceLocation(ZooArchitect.MOD_ID, "entity/cardinal/cardinal.png");
     }
 
     @Override

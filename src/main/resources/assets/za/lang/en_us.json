@@ -28,6 +28,8 @@
   "entity.za.salamander": "Fire Salamander",
   "entity.za.cardinal": "Cardinal",
   "entity.za.mouse": "Mouse",
+  "entity.za.squirrel": "Squirrel",
+
   "item.za.jaguar_spawn_egg": "Jaguar Spawn Egg",
   "item.za.manatee_spawn_egg": "Manatee Spawn Egg",
   "item.za.capybara_spawn_egg": "Capybara Spawn Egg",
@@ -57,6 +59,8 @@
   "item.za.salamander_spawn_egg": "Fire Salamander Spawn Egg",
   "item.za.cardinal_spawn_egg": "Cardinal Spawn Egg",
   "item.za.mouse_spawn_egg": "Mouse Spawn Egg",
+  "item.za.squirrel_spawn_egg": "Squirrel Spawn Egg",
+
   "item.za.jaguar_tooth": "Jaguar Tooth",
   "item.za.jungle_dagger": "Jungle Dagger",
   "item.za.chameleon_tail": "Chameleon Tail",
@@ -89,6 +93,7 @@
   "item.za.jaguar_fur": "Jaguar Fur",
   "item.za.jaguar_fur_boots": "Jaguar Fur Boots",
   "item.za.dried_sea_lettuce": "Dried Sea Lettuce",
+
   "block.za.pineapple": "Pineapple Block",
   "block.za.steppe_eagle_egg": "Steppe Eagle Egg",
   "block.za.steppe_eagle_nest": "Steppe Eagle Nest",
@@ -100,11 +105,14 @@
   "block.za.stone_path": "Stone Path",
   "block.za.sea_urchin": "Sea Urchin",
   "block.za.sea_lettuce": "Sea Lettuce",
+
   "itemGroup.africa_tab": "Zoo Architect",
+
   "death.attack.maul": "%1$s was mauled by a jaguar",
   "death.attack.maul.player": "%1$s was mauled by a jaguar",
   "death.attack.venom": "%1$s's organs shut down by venom",
   "death.attack.venom.player": "%1$s's organs shut down by venom",
+
   "item.minecraft.potion.effect.toxin_potion": "Toxin Potion",
   "item.minecraft.splash_potion.effect.toxin_potion": "Splash Potion of Toxin",
   "item.minecraft.lingering_potion.effect.toxin_potion": "Lingering Potion of Toxin",
@@ -113,6 +121,7 @@
   "item.minecraft.splash_potion.effect.venom_potion": "Splash Potion of Venom",
   "item.minecraft.lingering_potion.effect.venom_potion": "Lingering Potion of Venom",
   "item.minecraft.tipped_arrow.effect.venom_potion": "Arrow of Venom",
+
   "sounds.za.lion_ambient": "Jaguar Purrs",
   "sounds.za.lion_hurt": "Jaguar Hurts",
   "sounds.za.lion_death": "Jaguar Dies",
@@ -120,6 +129,7 @@
   "sounds.za.boscage": "LudoCrypt - boscage",
   "sounds.za.parch": "LudoCrypt - parch",
   "sounds.za.rattle": "Rattlesnake Rattles",
+
   "advancements.adventure.toothless.title": "Lost a tooth!",
   "advancements.adventure.toothless.description": "Make a Jaguar Lose a tooth by blocking its Attack",
   "advancements.husbandry.okipullup.title": "Ok I pull up",
@@ -140,10 +150,14 @@
   "advancements.adventure.cope.description": "Find a copepod, a small shrimp like crustacean found in the deep ocean",
   "advancements.adventure.afraid.title": "They're more afraid of us...",
   "advancements.adventure.afraid.description": "Fight and defeat a great white shark, a lot of people think they're monsters actually",
+  "advancements.adventure.spyglass_at_cardinal.title": "Birdwatching!",
+  "advancements.adventure.spyglass_at_cardinal.description": "Look at a Cardinal with a spyglass, a bird which makes beautiful noises",
+
   "item.za.boscage_music_disc": "Music Disc",
   "item.za.boscage_music_disc.desc": "LudoCrypt - boscage",
   "item.za.parch_music_disc": "Music Disc",
   "item.za.parch_music_disc.desc": "LudoCrypt - parch",
+
   "effect.za.toxin": "Toxin",
   "effect.za.venom": "Venom"
 }

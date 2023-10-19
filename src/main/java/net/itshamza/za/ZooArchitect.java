@@ -11,6 +11,8 @@ import net.itshamza.za.potion.ModPotions;
 import net.itshamza.za.sound.ModSounds;
 import net.itshamza.za.util.BetterBrewingRecipe;
 import net.itshamza.za.world.feature.ModPlacedFeature;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
@@ -68,12 +70,7 @@ public class ZooArchitect
     }
 
     private void clientSetup(final FMLCommonSetupEvent event){
-        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.PINEAPPLE.get(), RenderType.cutout());
-        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.PRICKLY_PEAR.get(), RenderType.cutout());
-        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.STEPPE_EAGLE_NEST.get(), RenderType.cutout());
-        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.CATTAIL.get(), RenderType.cutout());
-        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.SEA_LETTUCE.get(), RenderType.cutout());
-        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.SEA_URCHIN.get(), RenderType.cutout());
+
     }
 
     private void setup(final FMLCommonSetupEvent event)

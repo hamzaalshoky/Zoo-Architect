@@ -1,40 +1,37 @@
 package net.itshamza.za.entity.custom;
 
-import net.itshamza.za.entity.ModEntityCreator;
-import net.itshamza.za.entity.custom.ai.CapybaraSleepGoal;
 import net.itshamza.za.item.ModItems;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -45,36 +42,38 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
+import java.util.EnumSet;
+import java.util.Random;
 
-public class MouseEntity extends Animal implements IAnimatable{
+
+public class SquirrelEntity extends Animal implements IAnimatable{
 
     private AnimationFactory factory = new AnimationFactory(this);
     private static final Item POISONOUS_FOOD = ModItems.RAT_POISON.get();
+    private static final EntityDataAccessor<Integer> SAPLING_TIME = SynchedEntityData.defineId(SquirrelEntity.class, EntityDataSerializers.INT);
 
-    public MouseEntity(EntityType<? extends Animal> p_27557_, Level p_27558_) {
+    public SquirrelEntity(EntityType<? extends Animal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
     }
     public static AttributeSupplier setAttributes() {
         return Animal.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 10.0D)
+                .add(Attributes.MAX_HEALTH, 8.0D)
                 .add(Attributes.ATTACK_DAMAGE, 4.0f)
                 .add(Attributes.ATTACK_SPEED, 2.0f)
-                .add(Attributes.MOVEMENT_SPEED, 0.3f).build();
+                .add(Attributes.MOVEMENT_SPEED, 0.35f).build();
     }
 
     protected void registerGoals() {
         this.goalSelector.addGoal(2, new RandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(2, new RandomSwimmingGoal(this, 1.0D, 1));
         this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(0, new SaplingPlantingGoal(this));
         this.goalSelector.addGoal(3, new BreedGoal(this, 1.0D));
         this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.1D));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(0, new PanicGoal(this, 1.25D));
-        this.goalSelector.addGoal(4, new AvoidEntityGoal<>(this, JaguarEntity.class, 8.0F, 2.2D, 2.2D));
+        this.goalSelector.addGoal(4, new AvoidEntityGoal<>(this, Wolf.class, 8.0F, 2.2D, 2.2D));
         this.goalSelector.addGoal(4, new AvoidEntityGoal<>(this, Fox.class, 8.0F, 2.2D, 2.2D));
-        this.goalSelector.addGoal(4, new AvoidEntityGoal<>(this, FennecFoxEntity.class, 8.0F, 2.2D, 2.2D));
-        this.goalSelector.addGoal(4, new AvoidEntityGoal<>(this, SteppeEagleEntity.class, 8.0F, 2.2D, 2.2D));
-        this.goalSelector.addGoal(4, new AvoidEntityGoal<>(this, Cat.class, 8.0F, 2.2D, 2.2D));
     }
 
     // ANIMATIONS //
@@ -121,12 +120,6 @@ public class MouseEntity extends Animal implements IAnimatable{
         return factory;
     }
 
-    @Override
-    public boolean isFood(ItemStack pStack) {
-        return pStack.getItem() == ModItems.CHEESE.get();
-    }
-
-
     @javax.annotation.Nullable
     public Entity getControllingPassenger() {
         return this.getFirstPassenger();
@@ -135,7 +128,12 @@ public class MouseEntity extends Animal implements IAnimatable{
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel p_146743_, AgeableMob p_146744_) {
-        return ModEntityCreator.MOUSE.get().create(p_146743_);
+        return null;
+    }
+
+    public boolean isHamza() {
+        String s = ChatFormatting.stripFormatting(this.getName().getString());
+        return s != null && (s.toLowerCase().contains("hamza"));
     }
 
     public InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
@@ -153,6 +151,51 @@ public class MouseEntity extends Animal implements IAnimatable{
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {
             return super.mobInteract(pPlayer, pHand);
+        }
+    }
+
+    public class SaplingPlantingGoal extends Goal {
+        private final LivingEntity entity;
+        private final Level world;
+        private final Random random;
+        private int timeUntilNextPlant;
+
+        public SaplingPlantingGoal(LivingEntity entity) {
+            this.entity = entity;
+            this.world = entity.level;
+            this.random = new Random();
+            this.timeUntilNextPlant = this.random.nextInt(12) + 60; // Random time between 10 and 30 seconds
+        }
+
+        @Override
+        public boolean canUse() {
+            return this.timeUntilNextPlant <= 0;
+        }
+
+        @Override
+        public void tick() {
+            BlockPos frontBlockPos = this.entity.getOnPos().offset(this.entity.getOnPos());
+            if (this.world.isEmptyBlock(frontBlockPos) && this.world.isEmptyBlock(frontBlockPos.above())) {
+                ItemStack saplingStack = new ItemStack(Items.OAK_SAPLING); // Change to your desired sapling type
+                if (this.entity.getMainHandItem().isEmpty()) {
+                    this.entity.setItemInHand(InteractionHand.MAIN_HAND, saplingStack);
+                } else if (this.entity.getOffhandItem().isEmpty()) {
+                    this.entity.setItemInHand(InteractionHand.MAIN_HAND, saplingStack);
+                } else {
+                    // Both hands are occupied, cannot plant sapling
+                    return;
+                }
+
+                Vec3 lookVec = Vec3.directionFromRotation(this.entity.getRotationVector());
+                double offsetX = lookVec.x * 2.0;
+                double offsetY = lookVec.y * 2.0;
+                double offsetZ = lookVec.z * 2.0;
+
+                BlockPos targetBlockPos = frontBlockPos.offset(offsetX, offsetY, offsetZ);
+                this.world.setBlock(targetBlockPos, Blocks.OAK_SAPLING.defaultBlockState(), 2);
+            }
+
+            this.timeUntilNextPlant = this.random.nextInt(12) + 60; // Random time between 10 and 30 seconds
         }
     }
 }

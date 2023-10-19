@@ -1,0 +1,45 @@
+{
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "spyglass_at_cardinal": {
+      "conditions": {
+        "item": {
+          "items": [
+            "minecraft:spyglass"
+          ]
+        },
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type_specific": {
+                "type": "player",
+                "looking_at": {
+                  "type": "za:cardinal"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:using_item"
+    }
+  },
+  "display": {
+    "icon": {
+      "item": "minecraft:spyglass"
+    },
+    "title": {
+      "translate": "advancements.adventure.spyglass_at_cardinal.title"
+    },
+    "description": {
+      "translate": "advancements.adventure.spyglass_at_cardinal.description"
+    }
+  },
+  "requirements": [
+    [
+      "spyglass_at_cardinal"
+    ]
+  ]
+}

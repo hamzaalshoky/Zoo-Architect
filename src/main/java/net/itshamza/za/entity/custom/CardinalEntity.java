@@ -1,9 +1,13 @@
 package net.itshamza.za.entity.custom;
 
 import com.google.common.collect.Lists;
+import net.itshamza.za.entity.custom.variant.CardinalVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -12,6 +16,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -30,6 +35,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,6 +51,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 import java.util.List;
+import java.util.Random;
 
 
 public class CardinalEntity extends Parrot implements IAnimatable {
@@ -106,11 +113,6 @@ public class CardinalEntity extends Parrot implements IAnimatable {
     @Override
     public AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob p_146744_) {
         return null;
-    }
-
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        //this.entityData.define(DATA_FLAGS_ID, (byte)0);
     }
 
     protected void registerGoals() {
@@ -232,18 +234,7 @@ public class CardinalEntity extends Parrot implements IAnimatable {
         }
     }
 
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
-        pCompound.putInt("Variant", this.getVariant());
-    }
 
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        this.setVariant(pCompound.getInt("Variant"));
-    }
 
     public boolean isFlying() {
         return !this.onGround;
@@ -295,4 +286,5 @@ public class CardinalEntity extends Parrot implements IAnimatable {
     public AnimationFactory getFactory() {
         return factory;
     }
+
 }

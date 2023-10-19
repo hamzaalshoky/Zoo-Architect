@@ -12,21 +12,21 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.RandomSwimmingGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.AnimationState;
@@ -38,8 +38,11 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
-public class SalamanderEntity extends Animal implements IAnimatable{
+import java.util.EnumSet;
+import java.util.Random;
 
+public class SalamanderEntity extends Animal implements IAnimatable{
+    private int timeUntilNextDrop;
     private AnimationFactory factory = new AnimationFactory(this);
     public SalamanderEntity(EntityType<? extends Animal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
@@ -170,5 +173,32 @@ public class SalamanderEntity extends Animal implements IAnimatable{
     public boolean isSmaug() {
         String s = ChatFormatting.stripFormatting(this.getName().getString());
         return s != null && (s.toLowerCase().contains("smaug"));
+    }
+
+    private class DropSlimeGoal extends Goal {
+
+        @Override
+        public boolean canUse() {
+            return timeUntilNextDrop <= 0;
+        }
+
+        @Override
+        public void tick() {
+            if (!level.isClientSide) {
+                BlockPos dropPos = getOnPos();
+                Item slimeItem = Items.SLIME_BALL;
+                ItemStack slimeStack = new ItemStack(slimeItem);
+
+                ItemEntity itemEntity = new ItemEntity(level, dropPos.getX(), dropPos.getY(), dropPos.getZ(), slimeStack);
+
+                level.addFreshEntity(itemEntity);
+
+                timeUntilNextDrop = 40; // 2 seconds (20 ticks per second)
+            }
+        }
+    }
+
+    public void tick(){
+
     }
 }

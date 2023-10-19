@@ -51,6 +51,8 @@ public class ModEntityCreator {
     public static final RegistryObject<EntityType<SalamanderEntity>> SALAMANDER = ENTITY_TYPES.register("salamander", () -> EntityType.Builder.of(SalamanderEntity::new, MobCategory.CREATURE).sized(0.7F, 0.2F).build(new ResourceLocation(ZooArchitect.MOD_ID, "salamander").toString()));
     public static final RegistryObject<EntityType<CardinalEntity>> CARDINAL = ENTITY_TYPES.register("cardinal", () -> EntityType.Builder.of(CardinalEntity::new, MobCategory.CREATURE).sized(0.3F, 0.4F).build(new ResourceLocation(ZooArchitect.MOD_ID, "cardinal").toString()));
     public static final RegistryObject<EntityType<MouseEntity>> MOUSE = ENTITY_TYPES.register("mouse", () -> EntityType.Builder.of(MouseEntity::new, MobCategory.CREATURE).sized(0.6F, 0.4F).build(new ResourceLocation(ZooArchitect.MOD_ID, "mouse").toString()));
+    public static final RegistryObject<EntityType<SquirrelEntity>> SQUIRREL = ENTITY_TYPES.register("squirrel", () -> EntityType.Builder.of(SquirrelEntity::new, MobCategory.CREATURE).sized(0.7F, 0.6F).build(new ResourceLocation(ZooArchitect.MOD_ID, "squirrel").toString()));
+    public static final RegistryObject<EntityType<OpossumEntity>> OPOSSUM = ENTITY_TYPES.register("opossum", () -> EntityType.Builder.of(OpossumEntity::new, MobCategory.CREATURE).sized(1F, 0.7F).build(new ResourceLocation(ZooArchitect.MOD_ID, "opossum").toString()));
     // ATTRIBUTES
 
     @SubscribeEvent
@@ -84,6 +86,8 @@ public class ModEntityCreator {
         event.put(ModEntityCreator.SALAMANDER.get(), SalamanderEntity.setAttributes());
         event.put(ModEntityCreator.CARDINAL.get(), CardinalEntity.setAttributes());
         event.put(ModEntityCreator.MOUSE.get(), MouseEntity.setAttributes());
+        event.put(ModEntityCreator.SQUIRREL.get(), SquirrelEntity.setAttributes());
+        event.put(ModEntityCreator.OPOSSUM.get(), OpossumEntity.setAttributes());
     }
 
     // RENDERERS
@@ -119,6 +123,8 @@ public class ModEntityCreator {
         event.registerEntityRenderer(ModEntityCreator.SALAMANDER.get(), SalamanderRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.CARDINAL.get(), CardinalRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.MOUSE.get(), MouseRenderer::new);
+        event.registerEntityRenderer(ModEntityCreator.SQUIRREL.get(), SquirrelRenderer::new);
+        event.registerEntityRenderer(ModEntityCreator.OPOSSUM.get(), OpossumRenderer::new);
     }
 
     public static void register(IEventBus eventBus) {

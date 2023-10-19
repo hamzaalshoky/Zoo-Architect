@@ -1,16 +1,10 @@
 package net.itshamza.za.event;
 
 import net.itshamza.za.ZooArchitect;
-import net.itshamza.za.entity.custom.FennecFoxEntity;
-import net.itshamza.za.entity.custom.FrilledLizardEntity;
-import net.itshamza.za.entity.custom.JaguarEntity;
-import net.itshamza.za.entity.custom.MouseEntity;
+import net.itshamza.za.entity.custom.*;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.Bee;
-import net.minecraft.world.entity.animal.Cat;
-import net.minecraft.world.entity.animal.Fox;
-import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.entity.monster.Monster;
@@ -36,6 +30,14 @@ public class ServerEvents {
             if (event.getEntity() != null && event.getEntity() instanceof Fox) {
                 Fox spider = (Fox) event.getEntity();
                 spider.targetSelector.addGoal(2, new NearestAttackableTargetGoal(spider, MouseEntity.class, 1, true, false, null));
+            }
+            if (event.getEntity() != null && event.getEntity() instanceof Fox) {
+                Fox spider = (Fox) event.getEntity();
+                spider.targetSelector.addGoal(2, new NearestAttackableTargetGoal(spider, SquirrelEntity.class, 1, true, false, null));
+            }
+            if (event.getEntity() != null && event.getEntity() instanceof Wolf) {
+                Wolf spider = (Wolf) event.getEntity();
+                spider.targetSelector.addGoal(2, new NearestAttackableTargetGoal(spider, SquirrelEntity.class, 1, true, false, null));
             }
             if (event.getEntity() != null && event.getEntity() instanceof Cat) {
                 Cat spider = (Cat) event.getEntity();
