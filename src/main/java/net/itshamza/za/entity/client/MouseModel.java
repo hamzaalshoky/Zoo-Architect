@@ -3,9 +3,9 @@ package net.itshamza.za.entity.client;
 import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.MouseEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class MouseModel extends AnimatedGeoModel<MouseEntity> {
+public class MouseModel extends GeoModel<MouseEntity> {
 
     @Override
     public ResourceLocation getModelResource(MouseEntity object) {

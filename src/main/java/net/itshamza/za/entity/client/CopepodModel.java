@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.CopepodEntity;
 import net.itshamza.za.entity.custom.CopepodEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class CopepodModel extends AnimatedGeoModel<CopepodEntity> {
+public class CopepodModel extends GeoModel<CopepodEntity> {
 
     @Override
     public ResourceLocation getModelResource(CopepodEntity object) {

@@ -15,7 +15,7 @@ public class PearItem extends Item {
 
     public ItemStack finishUsingItem(ItemStack p_40712_, Level p_40713_, LivingEntity p_40714_) {
         super.finishUsingItem(p_40712_, p_40713_, p_40714_);
-        p_40714_.hurt(DamageSource.CACTUS, 1);
+        p_40714_.hurt(p_40713_.damageSources().cactus(), 1);
         return p_40712_;
     }
 }

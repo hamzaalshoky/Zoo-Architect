@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.NarwhalEntity;
 import net.itshamza.za.entity.custom.NarwhalEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class NarwhalModel extends AnimatedGeoModel<NarwhalEntity> {
+public class NarwhalModel extends GeoModel<NarwhalEntity> {
 
     @Override
     public ResourceLocation getModelResource(NarwhalEntity object) {

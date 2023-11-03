@@ -1,20 +1,20 @@
 {
-  "lion_ambient": {
-    "subtitle": "sounds.za.lion_roars",
+  "jaguar_ambient": {
+    "subtitle": "sounds.za.jaguar_roars",
     "sounds": [
-      "za:lion_ambient"
+      "za:jaguar_ambient"
     ]
   },
-  "lion_hurt": {
-    "subtitle": "sounds.za.lion_hurt",
+  "jaguar_hurt": {
+    "subtitle": "sounds.za.jaguar_hurt",
     "sounds": [
-      "za:lion_hurt"
+      "za:jaguar_hurt"
     ]
   },
-  "lion_death": {
-    "subtitle": "sounds.za.lion_death",
+  "jaguar_death": {
+    "subtitle": "sounds.za.jaguar_death",
     "sounds": [
-      "za:lion_death"
+      "za:jaguar_death"
     ]
   },
   "jaguar_pounce": {

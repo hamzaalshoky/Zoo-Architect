@@ -28,23 +28,25 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
 
 
-public class CrabEntity extends Animal implements IAnimatable {
+public class CrabEntity extends Animal implements GeoEntity {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     private static final EntityDataAccessor<Boolean> BURRIED = SynchedEntityData.defineId(CrabEntity.class, EntityDataSerializers.BOOLEAN);
     private static final Predicate<LivingEntity> WARNABLE_PREDICATE = (mob) -> {
         return mob instanceof Player && !((Player) mob).isCreative() && !mob.isSpectator();
@@ -103,37 +105,42 @@ public class CrabEntity extends Animal implements IAnimatable {
     protected float getSoundVolume() {
         return 0.2F;
     }
-    
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
+
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
         return PlayState.CONTINUE;
     }
 
-    private PlayState attackPredicate(AnimationEvent event) {
-        if(this.swinging && event.getController().getAnimationState().equals(AnimationState.Stopped)){
-            event.getController().markNeedsReload();
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("attack", false));
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
             this.swinging = false;
         }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
-        data.addAnimationController(new AnimationController(this, "attackController",
+        controllers.add(new AnimationController(this, "attackController",
                 0, this::attackPredicate));
     }
 
     public void tick(){
         super.tick();
-        this.stateToDig = CrabEntity.this.level.getBlockState(CrabEntity.this.blockPosition().below());
+        this.stateToDig = CrabEntity.this.level().getBlockState(CrabEntity.this.blockPosition().below());
     }
 
 
@@ -149,7 +156,7 @@ public class CrabEntity extends Animal implements IAnimatable {
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -159,7 +166,7 @@ public class CrabEntity extends Animal implements IAnimatable {
         @Override
         public boolean canUse() {
             double dist = 10D;
-            List<LivingEntity> list = CrabEntity.this.level.getEntitiesOfClass(LivingEntity.class, CrabEntity.this.getBoundingBox().inflate(dist, dist, dist), WARNABLE_PREDICATE);
+            List<LivingEntity> list = CrabEntity.this.level().getEntitiesOfClass(LivingEntity.class, CrabEntity.this.getBoundingBox().inflate(dist, dist, dist), WARNABLE_PREDICATE);
             double d0 = dist;
             Entity possibleTarget = null;
             for(Entity entity : list) {
@@ -250,12 +257,12 @@ public class CrabEntity extends Animal implements IAnimatable {
                 this.digTime--;
 
                 if (this.digTime % 5 == 0 && this.digTime >= 10) {
-                    CrabEntity.this.level.playSound(null, CrabEntity.this, SoundEvents.GRAVEL_HIT, SoundSource.BLOCKS, 0.2F, 1.2F);
+                    CrabEntity.this.level().playSound(null, CrabEntity.this, SoundEvents.GRAVEL_HIT, SoundSource.BLOCKS, 0.2F, 1.2F);
                     for (int i = 0; i < 4; ++i) {
                         double d0 = CrabEntity.this.random.nextGaussian() * 0.01D;
                         double d1 = CrabEntity.this.random.nextGaussian() * 0.01D;
                         double d2 = CrabEntity.this.random.nextGaussian() * 0.01D;
-                        ((ServerLevel) CrabEntity.this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, CrabEntity.this.stateToDig), CrabEntity.this.getX(), CrabEntity.this.getY(), CrabEntity.this.getZ(), 2, d0, d1, d2, 0.1D);
+                        ((ServerLevel) CrabEntity.this.level()).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, CrabEntity.this.stateToDig), CrabEntity.this.getX(), CrabEntity.this.getY(), CrabEntity.this.getZ(), 2, d0, d1, d2, 0.1D);
                     }
                 }
                 if (this.digTime == 10) {

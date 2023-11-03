@@ -24,24 +24,27 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.EnumSet;
 import java.util.function.Predicate;
 
-public class LeechEntity extends Animal implements IAnimatable{
+public class LeechEntity extends Animal implements GeoEntity{
     private int fleeAfterStealTime = 0;
     private int attachTime = 0;
     private int dismountCooldown = 0;
     public int passengerIndex = 0;
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     public static final Predicate<LivingEntity> PREY_SELECTOR = (p_30437_) -> {
         EntityType<?> entitytype = p_30437_.getType();
         return entitytype == EntityType.SHEEP || entitytype == EntityType.COW || entitytype == EntityType.HORSE || entitytype == EntityType.SALMON || entitytype == ModEntityCreator.CHAMELEON.get() || entitytype == ModEntityCreator.CAPYBARA.get();
@@ -93,15 +96,36 @@ public class LeechEntity extends Animal implements IAnimatable{
     }
 
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
+        }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     @Nullable
@@ -112,7 +136,7 @@ public class LeechEntity extends Animal implements IAnimatable{
 
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -141,15 +165,15 @@ public class LeechEntity extends Animal implements IAnimatable{
                     if (!mount.isAlive()) {
                         this.removeVehicle();
                     }
-                    if (!level.isClientSide && attachTime > 15) {
+                    if (!level().isClientSide && attachTime > 15) {
                         LivingEntity target = (LivingEntity) mount;
                         float dmg = 1F;
                         if (target.getHealth() > target.getMaxHealth() * 0.2F) {
                             dmg = 1F;
                         }
-                        if ((target.getHealth() < 1.5D || mount.hurt(DamageSource.mobAttack(this), dmg)) && mount instanceof LivingEntity) {
-                            if(!target.isOnGround()){
-                                this.hurt(DamageSource.GENERIC, 100);
+                        if ((target.getHealth() < 1.5D || mount.hurt(this.level().damageSources().mobAttack(this), dmg)) && mount instanceof LivingEntity) {
+                            if(target.isFallFlying()){
+                                this.hurt(this.level().damageSources().generic(), 100);
                             }else{
                                 this.doHurtTarget(target);
                                 this.setPos(mount.getX() + extraX, Math.max(mount.getY() + mount.getEyeHeight() * 0.25F, mount.getY()), mount.getZ() + extraZ);
@@ -177,7 +201,7 @@ public class LeechEntity extends Animal implements IAnimatable{
         if (dismountCooldown > 0) {
             dismountCooldown--;
         }
-        if (!level.isClientSide) {
+        if (!level().isClientSide) {
             if (!this.isPassenger() && attachTime != 0) {
                 attachTime = 0;
             }

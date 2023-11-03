@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.ScorpionEntity;
 import net.itshamza.za.entity.custom.ScorpionEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class ScorpionModel extends AnimatedGeoModel<ScorpionEntity> {
+public class ScorpionModel extends GeoModel<ScorpionEntity> {
 
     @Override
     public ResourceLocation getModelResource(ScorpionEntity object) {

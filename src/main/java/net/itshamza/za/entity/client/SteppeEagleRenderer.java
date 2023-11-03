@@ -7,7 +7,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
+
+import javax.annotation.Nullable;
 
 public class SteppeEagleRenderer extends GeoEntityRenderer<SteppeEagleEntity> {
     private static final ResourceLocation TEXTURE = new ResourceLocation("za:textures/entity/steppe_eagle/steppe_eagle.png");
@@ -25,14 +27,7 @@ public class SteppeEagleRenderer extends GeoEntityRenderer<SteppeEagleEntity> {
 
 
     @Override
-    public RenderType getRenderType(SteppeEagleEntity animatable, float partialTicks, PoseStack stack,
-                                    MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
-                                    ResourceLocation textureLocation) {
-        if(animatable.isBaby()){
-            stack.scale(0.5F, 0.5F, 0.5F);
-        }else{
-            stack.scale(1.5F, 1.5F, 1.5F);
-        }
-        return super.getRenderType(animatable, partialTicks, stack, renderTypeBuffer, vertexBuilder, packedLightIn, textureLocation);
+    public RenderType getRenderType(SteppeEagleEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        return super.getRenderType(animatable, texture, bufferSource, partialTick);
     }
 }

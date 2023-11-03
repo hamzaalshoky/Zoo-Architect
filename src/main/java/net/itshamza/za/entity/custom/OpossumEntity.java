@@ -36,22 +36,21 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.object.PlayState;
+
+import java.util.List;
 
 
-public class OpossumEntity extends TamableAnimal implements IAnimatable{
+public class OpossumEntity extends TamableAnimal implements GeoEntity{
 
-    private AnimationFactory factory = new AnimationFactory(this);
-    private static final EntityDataAccessor<Boolean> PLAYING_DEAD = SynchedEntityData.defineId(OpossumEntity.class, EntityDataSerializers.BOOLEAN);
-
-    public float sleepProgress;
-    public float prevSleepProgress;
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
+    private static final EntityDataAccessor<Boolean> PLAYING_DEAD =
+            SynchedEntityData.defineId(OpossumEntity.class, EntityDataSerializers.BOOLEAN);
 
     public OpossumEntity(EntityType<? extends TamableAnimal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
@@ -84,8 +83,12 @@ public class OpossumEntity extends TamableAnimal implements IAnimatable{
         this.targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, (double)1.2F, true));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Chicken.class, false));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, SquirrelEntity.class, false));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Chicken.class, false){
+            public boolean canUse() { return !OpossumEntity.this.isPlayingDead() && super.canUse(); }
+        });
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, SquirrelEntity.class, false){
+            public boolean canUse() { return !OpossumEntity.this.isPlayingDead() && super.canUse(); }
+        });
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F){
             public boolean canUse() { return !OpossumEntity.this.isPlayingDead() && super.canUse(); }
         });
@@ -117,36 +120,41 @@ public class OpossumEntity extends TamableAnimal implements IAnimatable{
     }
 
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (this.isPlayingDead()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("dead", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
-            return PlayState.CONTINUE;
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
-    }
-
-
-    @javax.annotation.Nullable
-    public Entity getControllingPassenger() {
-        return this.getFirstPassenger();
     }
 
     @Nullable
@@ -168,7 +176,7 @@ public class OpossumEntity extends TamableAnimal implements IAnimatable{
         Item itemForTaming = Items.EGG;
 
         if (item == itemForTaming && !isTame()) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             } else {
                 if (!player.getAbilities().instabuild) {
@@ -176,11 +184,11 @@ public class OpossumEntity extends TamableAnimal implements IAnimatable{
                 }
 
                 if (this.random.nextInt(3) == 0 && !ForgeEventFactory.onAnimalTame(this, player)) {
-                    if (!this.level.isClientSide) {
+                    if (!this.level().isClientSide) {
                         super.tame(player);
                         this.navigation.recomputePath();
                         this.setTarget(null);
-                        this.level.broadcastEntityEvent(this, (byte) 7);
+                        this.level().broadcastEntityEvent(this, (byte) 7);
                     }
                 }
 
@@ -208,15 +216,7 @@ public class OpossumEntity extends TamableAnimal implements IAnimatable{
         super.readAdditionalSaveData(p_29478_);
         this.setPlayingDead(p_29478_.getBoolean("Sleeping"));
     }
-    public void tick(){
-        super.tick();
-        if(isPlayingDead()){
-            OpossumEntity.this.navigation.stop();
-            OpossumEntity.this.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20, 1), this);
-        }else{
-            OpossumEntity.this.navigation.tick();
-        }
-    }
+
     public boolean isPlayingDead() {
         return this.entityData.get(PLAYING_DEAD).booleanValue();
     }

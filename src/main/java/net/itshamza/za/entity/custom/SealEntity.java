@@ -41,23 +41,26 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
 
 
-public class SealEntity extends TamableAnimal implements IAnimatable {
+public class SealEntity extends TamableAnimal implements GeoEntity {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     private static final EntityDataAccessor<Boolean> BASKING = SynchedEntityData.defineId(SealEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> SITTING =
             SynchedEntityData.defineId(GoldenTamarinEntity.class, EntityDataSerializers.BOOLEAN);
@@ -121,41 +124,45 @@ public class SealEntity extends TamableAnimal implements IAnimatable {
     protected SoundEvent getAmbientSound() {
         return ModSounds.SEAL_AMBIENT.get();
     }
-    
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
+
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim_idle", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isSwimming()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isSitting()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("sleep", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        if (this.isSwimming()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("swim", true));
-            return PlayState.CONTINUE;
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
         }
 
-        if (this.isBasking()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("sleep", true));
-            return PlayState.CONTINUE;
-        }
-
-        if (this.isInWaterOrBubble()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("swim_idle", true));
-            return PlayState.CONTINUE;
-        }
-
-        if (this.isSitting()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("sleep", true));
-            return PlayState.CONTINUE;
-        }
-
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
 
@@ -178,7 +185,7 @@ public class SealEntity extends TamableAnimal implements IAnimatable {
 
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -199,7 +206,7 @@ public class SealEntity extends TamableAnimal implements IAnimatable {
         Item itemForTaming = Items.COOKED_COD;
 
         if (item == itemForTaming && !isTame()) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             } else {
                 if (!player.getAbilities().instabuild) {
@@ -207,11 +214,11 @@ public class SealEntity extends TamableAnimal implements IAnimatable {
                 }
 
                 if (this.random.nextInt(3) == 0 && !ForgeEventFactory.onAnimalTame(this, player)) {
-                    if (!this.level.isClientSide) {
+                    if (!this.level().isClientSide) {
                         super.tame(player);
                         this.navigation.recomputePath();
                         this.setTarget(null);
-                        this.level.broadcastEntityEvent(this, (byte) 7);
+                        this.level().broadcastEntityEvent(this, (byte) 7);
                     }
                 }
 
@@ -219,7 +226,7 @@ public class SealEntity extends TamableAnimal implements IAnimatable {
             }
         }
 
-        if(isTame() && !this.level.isClientSide && hand == InteractionHand.MAIN_HAND) {
+        if(isTame() && !this.level().isClientSide && hand == InteractionHand.MAIN_HAND) {
             setSitting(!isSitting());
             return InteractionResult.SUCCESS;
         }

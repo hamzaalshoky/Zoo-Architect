@@ -34,18 +34,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 
-public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable, Saddleable, PlayerRideable{
+public class CapybaraEntity extends Animal implements GeoEntity, ItemSteerable, Saddleable, PlayerRideable{
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
 
     public CapybaraEntity(EntityType<? extends Animal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
@@ -109,35 +112,45 @@ public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable
         return 0.2F;
     }
 
-
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
-        if (this.isInWaterOrBubble()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("swim", true));
+        if(this.isSleeping()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("sleep", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
-
-        if (this.isSleeping()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("sleep", true));
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
         return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
+        }
+
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
+                0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     @Override
     public boolean isFood(ItemStack pStack) {
         return pStack.getItem() == Items.MELON;
-    }
-
-    @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
-                0, this::predicate));
     }
 
     @Nullable
@@ -147,14 +160,11 @@ public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
-    @javax.annotation.Nullable
-    public Entity getControllingPassenger() {
-        return this.getFirstPassenger();
-    }
+    
 
     public boolean canBeControlledByRider() {
         Entity entity = this.getControllingPassenger();
@@ -173,16 +183,6 @@ public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable
     }
 
     @Override
-    public void travelWithInput(Vec3 p_29482_) {
-        super.travel(p_29482_);
-    }
-
-    @Override
-    public float getSteeringSpeed() {
-        return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED) * 0.225F;
-    }
-
-    @Override
     public boolean isSaddleable() {
         return this.isAlive() && !this.isBaby();
     }
@@ -191,7 +191,7 @@ public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable
     public void equipSaddle(@javax.annotation.Nullable SoundSource p_29476_) {
         this.steering.setSaddle(true);
         if (p_29476_ != null) {
-            this.level.playSound((Player)null, this, SoundEvents.PIG_SADDLE, p_29476_, 0.5F, 1.0F);
+            this.level().playSound((Player)null, this, SoundEvents.PIG_SADDLE, p_29476_, 0.5F, 1.0F);
         }
 
     }
@@ -209,7 +209,7 @@ public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable
     }
 
     public void onSyncedDataUpdated(EntityDataAccessor<?> p_29480_) {
-        if (DATA_BOOST_TIME.equals(p_29480_) && this.level.isClientSide) {
+        if (DATA_BOOST_TIME.equals(p_29480_) && this.level().isClientSide) {
             this.steering.onSynced();
         }
 
@@ -236,18 +236,18 @@ public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable
     }
 
     public void travel(Vec3 p_29506_) {
-        this.travel(this, this.steering, p_29506_);
+        this.travel(p_29506_);
     }
 
     public InteractionResult mobInteract(Player p_29489_, InteractionHand p_29490_) {
         boolean flag = this.isFood(p_29489_.getItemInHand(p_29490_));
         if (!flag && this.isSaddled() && !this.isVehicle() && !p_29489_.isSecondaryUseActive()) {
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 p_29489_.startRiding(this);
                 this.setSleeping(false);
             }
 
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else {
             InteractionResult interactionresult = super.mobInteract(p_29489_, p_29490_);
             if (!interactionresult.consumesAction()) {
@@ -274,10 +274,10 @@ public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable
 
                 for(int[] aint1 : aint) {
                     blockpos$mutableblockpos.set(blockpos.getX() + aint1[0], blockpos.getY(), blockpos.getZ() + aint1[1]);
-                    double d0 = this.level.getBlockFloorHeight(blockpos$mutableblockpos);
+                    double d0 = this.level().getBlockFloorHeight(blockpos$mutableblockpos);
                     if (DismountHelper.isBlockFloorValid(d0)) {
                         Vec3 vec3 = Vec3.upFromBottomCenterOf(blockpos$mutableblockpos, d0);
-                        if (DismountHelper.canDismountTo(this.level, p_29487_, aabb.move(vec3))) {
+                        if (DismountHelper.canDismountTo(this.level(), p_29487_, aabb.move(vec3))) {
                             p_29487_.setPose(pose);
                             return vec3;
                         }
@@ -299,10 +299,10 @@ public class CapybaraEntity extends Animal implements IAnimatable, ItemSteerable
         if (!this.isSleeping() && sleepProgress > 0F) {
             sleepProgress--;
         }
-        if (!this.level.isClientSide && this != null) {
-            if (this.level.isNight()) {
+        if (!this.level().isClientSide && this != null) {
+            if (this.level().isNight()) {
                 this.setSleeping(true);
-            } else if (!this.level.isNight()) {
+            } else if (!this.level().isNight()) {
                 this.setSleeping(false);
             }
         }

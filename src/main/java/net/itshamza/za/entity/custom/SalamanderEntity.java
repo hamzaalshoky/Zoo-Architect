@@ -29,21 +29,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.EnumSet;
 import java.util.Random;
 
-public class SalamanderEntity extends Animal implements IAnimatable{
+public class SalamanderEntity extends Animal implements GeoEntity{
     private int timeUntilNextDrop;
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     public SalamanderEntity(EntityType<? extends Animal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
     }
@@ -87,19 +86,36 @@ public class SalamanderEntity extends Animal implements IAnimatable{
     }
 
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if(event.isMoving()){
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
+        }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     public void baseTick() {
@@ -116,7 +132,7 @@ public class SalamanderEntity extends Animal implements IAnimatable{
             this.setAirSupply(p_149194_ - 1);
             if (this.getAirSupply() == -20) {
                 this.setAirSupply(0);
-                this.hurt(DamageSource.DRY_OUT, 2.0F);
+                this.hurt(this.level().damageSources().dryOut(), 2.0F);
             }
         } else {
             this.setAirSupply(this.getMaxAirSupply());
@@ -142,7 +158,7 @@ public class SalamanderEntity extends Animal implements IAnimatable{
 
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -154,11 +170,11 @@ public class SalamanderEntity extends Animal implements IAnimatable{
         Item itemForPebble = Items.GLASS_BOTTLE;
 
         if (item == itemForPebble && itemForPebble.canBeDepleted()) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             } else {
                 if (!player.getAbilities().instabuild) {
-                    itemstack.use(this.level, player, hand);
+                    itemstack.use(this.level(), player, hand);
                 }
                 rehydrate();
 
@@ -184,14 +200,14 @@ public class SalamanderEntity extends Animal implements IAnimatable{
 
         @Override
         public void tick() {
-            if (!level.isClientSide) {
+            if (!level().isClientSide) {
                 BlockPos dropPos = getOnPos();
                 Item slimeItem = Items.SLIME_BALL;
                 ItemStack slimeStack = new ItemStack(slimeItem);
 
-                ItemEntity itemEntity = new ItemEntity(level, dropPos.getX(), dropPos.getY(), dropPos.getZ(), slimeStack);
+                ItemEntity itemEntity = new ItemEntity(level(), dropPos.getX(), dropPos.getY(), dropPos.getZ(), slimeStack);
 
-                level.addFreshEntity(itemEntity);
+                level().addFreshEntity(itemEntity);
 
                 timeUntilNextDrop = 40; // 2 seconds (20 ticks per second)
             }

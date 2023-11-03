@@ -53,21 +53,23 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.Random;
 
 
-public class GoldenTamarinEntity extends TamableAnimal implements IAnimatable {
+public class GoldenTamarinEntity extends TamableAnimal implements GeoEntity {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT =
             SynchedEntityData.defineId(GoldenTamarinEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(GoldenTamarinEntity.class, EntityDataSerializers.BYTE);
@@ -120,38 +122,39 @@ public class GoldenTamarinEntity extends TamableAnimal implements IAnimatable {
         return ModSounds.TAMARIN_AMBIENT.get();
     }
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
-        if (this.isClimbing()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("climb", true));
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
-        if (this.isSitting() && this.isFallFlying() || this.isSitting()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("sit", true));
+        if(this.isSitting()){
+            animationState.getController().setAnimation(RawAnimation.begin().then("sit", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
         return PlayState.CONTINUE;
     }
 
-    private PlayState attackPredicate(AnimationEvent event) {
-        if(this.swinging && event.getController().getAnimationState().equals(AnimationState.Stopped)){
-            event.getController().markNeedsReload();
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("attack", false));
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
             this.swinging = false;
         }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
-        data.addAnimationController(new AnimationController(this, "attackController",
+        controllers.add(new AnimationController(this, "attackController",
                 0, this::attackPredicate));
     }
 
@@ -171,12 +174,12 @@ public class GoldenTamarinEntity extends TamableAnimal implements IAnimatable {
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
-        return source == DamageSource.FALL || super.isInvulnerableTo(source);
+        return source == this.level().damageSources().fall() || super.isInvulnerableTo(source);
     }
 
     public void tick() {
         super.tick();
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.setClimbing(this.horizontalCollision);
         }
     }
@@ -238,7 +241,7 @@ public class GoldenTamarinEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -251,7 +254,7 @@ public class GoldenTamarinEntity extends TamableAnimal implements IAnimatable {
         Item itemForPebble = Items.COBBLESTONE;
 
         if (item == itemForTaming && !isTame()) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             } else {
                 if (!player.getAbilities().instabuild) {
@@ -259,11 +262,11 @@ public class GoldenTamarinEntity extends TamableAnimal implements IAnimatable {
                 }
 
                 if (this.random.nextInt(3) == 0 && !ForgeEventFactory.onAnimalTame(this, player)) {
-                    if (!this.level.isClientSide) {
+                    if (!this.level().isClientSide) {
                         super.tame(player);
                         this.navigation.recomputePath();
                         this.setTarget(null);
-                        this.level.broadcastEntityEvent(this, (byte) 7);
+                        this.level().broadcastEntityEvent(this, (byte) 7);
                     }
                 }
 
@@ -272,7 +275,7 @@ public class GoldenTamarinEntity extends TamableAnimal implements IAnimatable {
         }
 
         if (item == itemForPebble && !isPebble()) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             } else {
                 if (!player.getAbilities().instabuild) {
@@ -284,7 +287,7 @@ public class GoldenTamarinEntity extends TamableAnimal implements IAnimatable {
             }
         }
 
-        if(isTame() && !this.level.isClientSide && hand == InteractionHand.MAIN_HAND) {
+        if(isTame() && !this.level().isClientSide && hand == InteractionHand.MAIN_HAND) {
             setSitting(!isSitting());
             return InteractionResult.SUCCESS;
         }

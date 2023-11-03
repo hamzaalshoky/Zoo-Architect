@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.LionfishEntity;
 import net.itshamza.za.entity.custom.LionfishEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class LionfishModel extends AnimatedGeoModel<LionfishEntity> {
+public class LionfishModel extends GeoModel<LionfishEntity> {
 
     @Override
     public ResourceLocation getModelResource(LionfishEntity object) {

@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.OctopusEntity;
 import net.itshamza.za.entity.custom.OctopusEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class OctopusModel extends AnimatedGeoModel<OctopusEntity> {
+public class OctopusModel extends GeoModel<OctopusEntity> {
     
     @Override
     public ResourceLocation getModelResource(OctopusEntity object) {

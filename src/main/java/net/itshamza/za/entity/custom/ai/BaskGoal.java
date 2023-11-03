@@ -18,7 +18,7 @@ public class BaskGoal extends Goal {
 
     public BaskGoal(SealEntity seal) {
         this.seal = seal;
-        this.world = seal.level;
+        this.world = seal.level();
     }
 
     @Override
@@ -28,7 +28,7 @@ public class BaskGoal extends Goal {
         }
 
         // Check if the seal is standing on a basking block and is under the sun
-        BlockPos pos = new BlockPos(this.seal.getX(), this.seal.getBoundingBox().minY, this.seal.getZ());
+        BlockPos pos = new BlockPos((int) this.seal.getX(), (int) this.seal.getBoundingBox().minY, (int) this.seal.getZ());
         BlockState state = this.world.getBlockState(pos);
         boolean isBaskingBlock = state.getBlock() instanceof SandBlock || state.getBlock() instanceof GravelBlock || state.is(Tags.Blocks.STONE);
         boolean isUnderSun = this.world.isDay() && this.world.canSeeSky(pos.above());

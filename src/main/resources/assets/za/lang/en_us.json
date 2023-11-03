@@ -106,8 +106,6 @@
   "block.za.sea_urchin": "Sea Urchin",
   "block.za.sea_lettuce": "Sea Lettuce",
 
-  "itemGroup.africa_tab": "Zoo Architect",
-
   "death.attack.maul": "%1$s was mauled by a jaguar",
   "death.attack.maul.player": "%1$s was mauled by a jaguar",
   "death.attack.venom": "%1$s's organs shut down by venom",
@@ -159,5 +157,7 @@
   "item.za.parch_music_disc.desc": "LudoCrypt - parch",
 
   "effect.za.toxin": "Toxin",
-  "effect.za.venom": "Venom"
+  "effect.za.venom": "Venom",
+
+  "creativemodetab.africa_tab": "Zoo Architect"
 }

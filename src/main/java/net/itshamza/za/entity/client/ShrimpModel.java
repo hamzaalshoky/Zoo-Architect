@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.ShrimpEntity;
 import net.itshamza.za.entity.custom.ShrimpEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class ShrimpModel extends AnimatedGeoModel<ShrimpEntity> {
+public class ShrimpModel extends GeoModel<ShrimpEntity> {
 
     @Override
     public ResourceLocation getModelResource(ShrimpEntity object) {

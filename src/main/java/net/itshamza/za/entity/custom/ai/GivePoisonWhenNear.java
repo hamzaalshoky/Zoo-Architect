@@ -57,7 +57,7 @@ public class GivePoisonWhenNear<T extends LivingEntity> extends Goal {
     }
 
     public boolean canUse() {
-        this.toAvoid = this.mob.level.getNearestEntity(this.mob.level.getEntitiesOfClass(this.avoidClass, this.mob.getBoundingBox().inflate(1.0D, 2.0D, 1.0D), (p_148078_) -> {
+        this.toAvoid = this.mob.level().getNearestEntity(this.mob.level().getEntitiesOfClass(this.avoidClass, this.mob.getBoundingBox().inflate(1.0D, 2.0D, 1.0D), (p_148078_) -> {
             return true;
         }), this.avoidEntityTargeting, this.mob, this.mob.getX(), this.mob.getY(), this.mob.getZ());
         if (this.toAvoid == null) {

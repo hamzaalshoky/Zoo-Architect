@@ -2,13 +2,10 @@ package net.itshamza.za.entity.custom.ai;
 
 import net.itshamza.za.entity.custom.JaguarEntity;
 import net.itshamza.za.item.ModItems;
-import net.itshamza.za.misc.ZAAdvancementTriggerRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -56,7 +53,7 @@ public class AttackPounce extends Goal {
     public void tick() {
         jaguar.setBipedal(true);
         boolean flag = false;
-        if ((hasJumped || jaguar.isTackling()) && jaguar.isOnGround()) {
+        if ((hasJumped || jaguar.isTackling()) && !jaguar.isFallFlying()) {
             hasJumped = false;
             willJump = false;
             jaguar.setTackling(false);
@@ -76,7 +73,7 @@ public class AttackPounce extends Goal {
                 jaguar.lookAt(target, 180F, 10F);
                 if (jaguar.distanceTo(target) > 20F) {
                     jaguar.getNavigation().moveTo(target, 1.0F);
-                } else if (jaguar.isOnGround() && jaguar.hasLineOfSight(target)) {
+                } else if (!jaguar.isFallFlying() && jaguar.hasLineOfSight(target)) {
                     this.jaguar.setTackling(true);
                     hasJumped = true;
                     jaguar.setStealth(false);
@@ -102,8 +99,8 @@ public class AttackPounce extends Goal {
                             jaguar.spawnAtLocation(ModItems.JAGUAR_TOOTH.get());
                             numOfTeeth--;
                         }else{
-                            for(ServerPlayer serverplayerentity : jaguar.level.getEntitiesOfClass(ServerPlayer.class, jaguar.getBoundingBox().inflate(40.0D, 25.0D, 40.0D))) {
-                                ZAAdvancementTriggerRegistry.TOOTHLESS.trigger(serverplayerentity);
+                            for(ServerPlayer serverplayerentity : jaguar.level().getEntitiesOfClass(ServerPlayer.class, jaguar.getBoundingBox().inflate(40.0D, 25.0D, 40.0D))) {
+                            
                             }
                         }
                     }
@@ -122,8 +119,7 @@ public class AttackPounce extends Goal {
                                         jaguar.spawnAtLocation(ModItems.JAGUAR_TOOTH.get());
                                         numOfTeeth--;
                                     }else if(numOfTeeth <= 0){
-                                        for(ServerPlayer serverplayerentity : jaguar.level.getEntitiesOfClass(ServerPlayer.class, jaguar.getBoundingBox().inflate(40.0D, 25.0D, 40.0D))) {
-                                            ZAAdvancementTriggerRegistry.TOOTHLESS.trigger(serverplayerentity);
+                                        for(ServerPlayer serverplayerentity : jaguar.level().getEntitiesOfClass(ServerPlayer.class, jaguar.getBoundingBox().inflate(40.0D, 25.0D, 40.0D))) {
                                         }
                                     }
                                 }
@@ -135,7 +131,7 @@ public class AttackPounce extends Goal {
                 }
             }
         }
-        if (!jaguar.isOnGround()) {
+        if (jaguar.isFallFlying()) {
             jaguar.lookAt(target, 180F, 10F);
             jaguar.yBodyRot = jaguar.getYRot();
         }
@@ -149,11 +145,11 @@ public class AttackPounce extends Goal {
         float angle = (0.01745329251F * (clockwise ? -orbit : orbit));
         double extraX = radius * Mth.sin((float) (Math.PI + angle));
         double extraZ = radius * Mth.cos(angle);
-        BlockPos circlePos = new BlockPos(target.getX() + extraX, target.getEyeY(), target.getZ() + extraZ);
-        while (!jaguar.level.getBlockState(circlePos).isAir() && circlePos.getY() < jaguar.level.getMaxBuildHeight()) {
+        BlockPos circlePos = new BlockPos((int) (target.getX() + extraX), (int) target.getEyeY(), (int) (target.getZ() + extraZ));
+        while (!jaguar.level().getBlockState(circlePos).isAir() && circlePos.getY() < jaguar.level().getMaxBuildHeight()) {
             circlePos = circlePos.above();
         }
-        while (!jaguar.level.getBlockState(circlePos.below()).entityCanStandOn(jaguar.level, circlePos.below(), jaguar) && circlePos.getY() > 1) {
+        while (!jaguar.level().getBlockState(circlePos.below()).entityCanStandOn(jaguar.level(), circlePos.below(), jaguar) && circlePos.getY() > 1) {
             circlePos = circlePos.below();
         }
         if (jaguar.getWalkTargetValue(circlePos) > -1) {

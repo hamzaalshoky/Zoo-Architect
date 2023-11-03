@@ -3,51 +3,6 @@
 	"animations": {
 		"idle": {
 			"loop": true
-		},
-		"dead": {
-			"loop": true,
-			"bones": {
-				"body": {
-					"rotation": {
-						"vector": {
-							"vector": [0, 0, -87.5]
-						}
-					},
-					"position": {
-						"vector": {
-							"vector": [0, -4, 0]
-						}
-					}
-				},
-				"head": {
-					"rotation": {
-						"vector": {
-							"vector": [0, 0, 67.5]
-						}
-					}
-				},
-				"rightLeg": {
-					"rotation": {
-						"vector": {
-							"vector": [0, 0, 35]
-						}
-					}
-				},
-				"rightLeg2": {
-					"rotation": {
-						"vector": {
-							"vector": [0, 0, 35]
-						}
-					}
-				},
-				"tail": {
-					"rotation": {
-						"vector": {
-							"vector": [0, -17.5, 0]
-						}
-					}
-				}
-			}
 		}
 	},
 	"geckolib_format_version": 2,

@@ -3,9 +3,9 @@ package net.itshamza.za.entity.client;
 import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.SquirrelEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class SquirrelModel extends AnimatedGeoModel<SquirrelEntity> {
+public class SquirrelModel extends GeoModel<SquirrelEntity> {
 
     @Override
     public ResourceLocation getModelResource(SquirrelEntity object) {

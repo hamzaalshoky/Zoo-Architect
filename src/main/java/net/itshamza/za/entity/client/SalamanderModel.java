@@ -3,12 +3,9 @@ package net.itshamza.za.entity.client;
 import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.SalamanderEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.processor.IBone;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
-import software.bernie.geckolib3.model.provider.data.EntityModelData;
+import software.bernie.geckolib.model.GeoModel;
 
-public class SalamanderModel extends AnimatedGeoModel<SalamanderEntity> {
+public class SalamanderModel extends GeoModel<SalamanderEntity> {
 
     @Override
     public ResourceLocation getModelResource(SalamanderEntity object) {

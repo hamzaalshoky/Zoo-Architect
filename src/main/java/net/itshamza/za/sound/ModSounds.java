@@ -1,56 +1,30 @@
 package net.itshamza.za.sound;
 
 import net.itshamza.za.ZooArchitect;
+import net.itshamza.za.platform.CommonPlatformHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.function.Supplier;
+
 public class ModSounds {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
             DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, ZooArchitect.MOD_ID);
 
-    public static RegistryObject<SoundEvent> LION_AMBIENT
-            = registerSoundEvents("lion_ambient");
-
-    public static RegistryObject<SoundEvent> LION_HURT
-            = registerSoundEvents("lion_hurt");
-
-    public static RegistryObject<SoundEvent> LION_DEATH
-            = registerSoundEvents("lion_death");
-
-    public static RegistryObject<SoundEvent> BOSCAGE
-            = registerSoundEvents("record_boscage");
-
-    public static RegistryObject<SoundEvent> RATTLE
-            = registerSoundEvents("rattle");
-
-    public static RegistryObject<SoundEvent> HISS
-            = registerSoundEvents("hiss");
-
-    public static RegistryObject<SoundEvent> SNAKE_HURT
-            = registerSoundEvents("snake_hurt");
-
-    public static RegistryObject<SoundEvent> SNAKE_DIE
-            = registerSoundEvents("snake_die");
-
-    public static RegistryObject<SoundEvent> PARCH
-            = registerSoundEvents("record_parch");
-
-    public static RegistryObject<SoundEvent> TAMARIN_AMBIENT
-            = registerSoundEvents("tamarin_ambient");
-
-    public static RegistryObject<SoundEvent> SEAL_AMBIENT
-            = registerSoundEvents("seal_ambient");
-
-    private static RegistryObject<SoundEvent> registerSoundEvents(String name) {
-        ResourceLocation id = new ResourceLocation(ZooArchitect.MOD_ID, name);
-        return SOUND_EVENTS.register(name, () -> new SoundEvent(id));
-    }
-
-    public static void register(IEventBus eventBus) {
-        SOUND_EVENTS.register(eventBus);
-    }
+    public static final Supplier<SoundEvent> JAGUAR_AMBIENT = CommonPlatformHelper.registerSoundEvent("jaguar_ambient", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "jaguar_ambient")));
+    public static final Supplier<SoundEvent> JAGUAR_HURT = CommonPlatformHelper.registerSoundEvent("jaguar_hurt", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "jaguar_hurt")));
+    public static final Supplier<SoundEvent> JAGUAR_DEATH = CommonPlatformHelper.registerSoundEvent("jaguar_death", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "jaguar_death")));
+    //public static final Supplier<SoundEvent> BOSCAGE = CommonPlatformHelper.registerSoundEvent("record_boscage", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "record_boscage")));
+    public static final Supplier<SoundEvent> RATTLE = CommonPlatformHelper.registerSoundEvent("rattle", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "rattle")));
+    public static final Supplier<SoundEvent> HISS = CommonPlatformHelper.registerSoundEvent("hiss", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "hiss")));
+    public static final Supplier<SoundEvent> SNAKE_HURT = CommonPlatformHelper.registerSoundEvent("snake_hurt", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "snake_hurt")));
+    public static final Supplier<SoundEvent> SNAKE_DIE = CommonPlatformHelper.registerSoundEvent("snake_die", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "snake_die")));
+    //public static final Supplier<SoundEvent> PARCH = CommonPlatformHelper.registerSoundEvent("record_parch", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "record_parch")));
+    public static final Supplier<SoundEvent> TAMARIN_AMBIENT = CommonPlatformHelper.registerSoundEvent("tamarin_ambient", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "tamarin_ambient")));
+    public static final Supplier<SoundEvent> SEAL_AMBIENT = CommonPlatformHelper.registerSoundEvent("seal_ambient", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ZooArchitect.MOD_ID, "seal_ambient")));
 }

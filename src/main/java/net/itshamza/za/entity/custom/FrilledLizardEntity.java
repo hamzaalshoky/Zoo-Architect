@@ -49,22 +49,20 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.List;
 import java.util.Random;
 
 
-public class FrilledLizardEntity extends TamableAnimal implements IAnimatable {
+public class FrilledLizardEntity extends TamableAnimal implements GeoEntity {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
 
     public FrilledLizardEntity(EntityType<? extends TamableAnimal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
@@ -105,26 +103,37 @@ public class FrilledLizardEntity extends TamableAnimal implements IAnimatable {
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         return ModSounds.SNAKE_HURT.get();
     }
-    
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (event.isMoving()) {
-            if (this.isAggressive()) {
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("scare", true));
-                return PlayState.CONTINUE;
-            }else{
-                event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
-                return PlayState.CONTINUE;
-            }
+
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isAggressive()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("scare", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
+        }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     @Nullable
@@ -138,7 +147,7 @@ public class FrilledLizardEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -150,7 +159,7 @@ public class FrilledLizardEntity extends TamableAnimal implements IAnimatable {
         Item itemForTaming = ModItems.SCORPION_TAIL.get();
 
         if (item == itemForTaming) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             } else {
                 if (!player.getAbilities().instabuild) {
@@ -158,11 +167,11 @@ public class FrilledLizardEntity extends TamableAnimal implements IAnimatable {
                 }
 
                 if (this.random.nextInt(3) == 0 && !ForgeEventFactory.onAnimalTame(this, player)) {
-                    if (!this.level.isClientSide) {
+                    if (!this.level().isClientSide) {
                         super.tame(player);
                         this.navigation.recomputePath();
                         this.setTarget(null);
-                        this.level.broadcastEntityEvent(this, (byte) 7);
+                        this.level().broadcastEntityEvent(this, (byte) 7);
                     }
                 }
 

@@ -41,22 +41,25 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+
+import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.List;
 import java.util.Random;
 
 
-public class CardinalEntity extends Parrot implements IAnimatable {
+public class CardinalEntity extends Parrot implements GeoEntity {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
 
     public CardinalEntity(EntityType<? extends Parrot> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
@@ -81,31 +84,36 @@ public class CardinalEntity extends Parrot implements IAnimatable {
     protected float getSoundVolume() {
         return 0.2F;
     }
-    
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (this.isFallFlying()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("fly", true));
+
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(this.isFallFlying()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("fly", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
         return PlayState.CONTINUE;
     }
 
-    private PlayState attackPredicate(AnimationEvent event) {
-        if(this.swinging && event.getController().getAnimationState().equals(AnimationState.Stopped)){
-            event.getController().markNeedsReload();
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("attack", false));
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
             this.swinging = false;
         }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
-        data.addAnimationController(new AnimationController(this, "attackController",
+        controllers.add(new AnimationController(this, "attackController",
                 0, this::attackPredicate));
     }
 
@@ -174,12 +182,12 @@ public class CardinalEntity extends Parrot implements IAnimatable {
     }
 
     public boolean doHurtTarget(Entity pEntity) {
-        return pEntity.hurt(DamageSource.mobAttack(this), 3.0F);
+        return pEntity.hurt(this.level().damageSources().mobAttack(this), 3.0F);
     }
 
     @javax.annotation.Nullable
     public SoundEvent getAmbientSound() {
-        return getAmbient(this.level, this.level.random);
+        return getAmbient(this.level(), this.level().random);
     }
 
     protected SoundEvent getHurtSound(DamageSource pDamageSource) {
@@ -226,7 +234,7 @@ public class CardinalEntity extends Parrot implements IAnimatable {
         if (this.isInvulnerableTo(pSource)) {
             return false;
         } else {
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 this.setOrderedToSit(false);
             }
 
@@ -237,7 +245,7 @@ public class CardinalEntity extends Parrot implements IAnimatable {
 
 
     public boolean isFlying() {
-        return !this.onGround;
+        return this.isFallFlying();
     }
 
     public Vec3 getLeashOffset() {
@@ -271,9 +279,9 @@ public class CardinalEntity extends Parrot implements IAnimatable {
 
             for(BlockPos blockpos1 : BlockPos.betweenClosed(Mth.floor(this.mob.getX() - 3.0D), Mth.floor(this.mob.getY() - 6.0D), Mth.floor(this.mob.getZ() - 3.0D), Mth.floor(this.mob.getX() + 3.0D), Mth.floor(this.mob.getY() + 6.0D), Mth.floor(this.mob.getZ() + 3.0D))) {
                 if (!blockpos.equals(blockpos1)) {
-                    BlockState blockstate = this.mob.level.getBlockState(blockpos$mutableblockpos1.setWithOffset(blockpos1, Direction.DOWN));
+                    BlockState blockstate = this.mob.level().getBlockState(blockpos$mutableblockpos1.setWithOffset(blockpos1, Direction.DOWN));
                     boolean flag = blockstate.getBlock() instanceof LeavesBlock || blockstate.is(BlockTags.LOGS);
-                    if (flag && this.mob.level.isEmptyBlock(blockpos1) && this.mob.level.isEmptyBlock(blockpos$mutableblockpos.setWithOffset(blockpos1, Direction.UP))) {
+                    if (flag && this.mob.level().isEmptyBlock(blockpos1) && this.mob.level().isEmptyBlock(blockpos$mutableblockpos.setWithOffset(blockpos1, Direction.UP))) {
                         return Vec3.atBottomCenterOf(blockpos1);
                     }
                 }
@@ -283,7 +291,7 @@ public class CardinalEntity extends Parrot implements IAnimatable {
         }
     }
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 

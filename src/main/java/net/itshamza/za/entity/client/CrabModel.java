@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.CrabEntity;
 import net.itshamza.za.entity.custom.CrabEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class CrabModel extends AnimatedGeoModel<CrabEntity> {
+public class CrabModel extends GeoModel<CrabEntity> {
 
     @Override
     public ResourceLocation getModelResource(CrabEntity object) {

@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.ManateeEntity;
 import net.itshamza.za.entity.custom.ManateeEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class ManateeModel extends AnimatedGeoModel<ManateeEntity> {
+public class ManateeModel extends GeoModel<ManateeEntity> {
 
     @Override
     public ResourceLocation getModelResource(ManateeEntity object) {

@@ -49,20 +49,24 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
+public class VultureEntity extends Animal implements GeoEntity, FlyingAnimal {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     public static final Predicate<LivingEntity> PREY_SELECTOR = (p_30437_) -> {
         EntityType<?> entitytype = p_30437_.getType();
         return entitytype == EntityType.ZOMBIE || entitytype == EntityType.HUSK || entitytype == EntityType.DROWNED || entitytype == EntityType.ZOMBIE || entitytype == EntityType.SKELETON || entitytype == EntityType.WITHER_SKELETON || entitytype == EntityType.WITHER;
@@ -106,7 +110,7 @@ public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
-        return source == DamageSource.CACTUS || super.isInvulnerableTo(source);
+        return source == this.level().damageSources().cactus() || super.isInvulnerableTo(source);
     }
 
     // ANIMATIONS //
@@ -133,7 +137,7 @@ public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
 
     @Override
     public boolean isFlying() {
-        return !this.isOnGround();
+        return this.isFallFlying();
     }
 
     @Override
@@ -176,21 +180,26 @@ public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
         return navigation;
     }
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (this.isFlying()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("fly", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(this.isFlying()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("fly", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
-        } else {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
         }
+
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
         return PlayState.CONTINUE;
     }
 
-    @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
-                0, this::predicate));
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
+        }
+
+        return PlayState.CONTINUE;
     }
+
 
     @Nullable
     @Override
@@ -214,7 +223,15 @@ public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
+                0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -225,7 +242,7 @@ public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
 
         @Override
         public boolean isStableDestination(BlockPos pos) {
-            return super.isStableDestination(pos) && this.mob.level.getBlockState(pos).is(Blocks.CACTUS);
+            return super.isStableDestination(pos) && this.mob.level().getBlockState(pos).is(Blocks.CACTUS);
         }
     }
 
@@ -270,7 +287,7 @@ public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
         float angle = (0.01745329251F * renderYawOffset) + 3.15F + (this.getRandom().nextFloat() * neg);
         double extraX = radius * Mth.sin((float) (Math.PI + angle));
         double extraZ = radius * Mth.cos(angle);
-        BlockPos radialPos = new BlockPos(fleePos.x() + extraX, 0, fleePos.z() + extraZ);
+        BlockPos radialPos = new BlockPos((int) (fleePos.x() + extraX), 0, (int) (fleePos.z() + extraZ));
         BlockPos ground = getSeagullGround(radialPos);
         int distFromGround = (int) this.getY() - ground.getY();
         int flightHeight = 8 + this.getRandom().nextInt(4);
@@ -282,11 +299,11 @@ public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
     }
 
     public BlockPos getSeagullGround(BlockPos in) {
-        BlockPos position = new BlockPos(in.getX(), this.getY(), in.getZ());
-        while (position.getY() < 320 && !level.getFluidState(position).isEmpty()) {
+        BlockPos position = new BlockPos(in.getX(), (int) this.getY(), in.getZ());
+        while (position.getY() < 320 && !level().getFluidState(position).isEmpty()) {
             position = position.above();
         }
-        while (position.getY() > -64 && !level.getBlockState(position).getMaterial().isSolidBlocking() && level.getFluidState(position).isEmpty()) {
+        while (position.getY() > -64 && level().getFluidState(position).isEmpty()) {
             position = position.below();
         }
         return position;
@@ -295,6 +312,6 @@ public class VultureEntity extends Animal implements IAnimatable, FlyingAnimal {
     public boolean isTargetBlocked(Vec3 target) {
         Vec3 Vector3d = new Vec3(this.getX(), this.getEyeY(), this.getZ());
 
-        return this.level.clip(new ClipContext(Vector3d, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() != HitResult.Type.MISS;
+        return this.level().clip(new ClipContext(Vector3d, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() != HitResult.Type.MISS;
     }
 }

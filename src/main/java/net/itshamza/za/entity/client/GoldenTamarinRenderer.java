@@ -11,8 +11,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class GoldenTamarinRenderer extends GeoEntityRenderer<GoldenTamarinEntity> {
@@ -29,8 +30,8 @@ public class GoldenTamarinRenderer extends GeoEntityRenderer<GoldenTamarinEntity
     public GoldenTamarinRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new GoldenTamarinModel());
         this.shadowRadius = 0.3f;
-        this.addLayer(new TamarinPebbleLayer<>(this));
-        this.addLayer(new TamarinDiaperLayer<>(this));
+        this.addRenderLayer(new TamarinPebbleLayer<>(this));
+        this.addRenderLayer(new TamarinDiaperLayer<>(this));
     }
 
     @Override
@@ -40,15 +41,8 @@ public class GoldenTamarinRenderer extends GeoEntityRenderer<GoldenTamarinEntity
 
 
     @Override
-    public RenderType getRenderType(GoldenTamarinEntity animatable, float partialTicks, PoseStack stack,
-                                    MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
-                                    ResourceLocation textureLocation) {
-        if(animatable.isBaby()){
-            stack.scale(0.6F, 0.6F, 0.6F);
-        }else{
-            stack.scale(1.1F, 1.1F, 1.1F);
-        }
-        return super.getRenderType(animatable, partialTicks, stack, renderTypeBuffer, vertexBuilder, packedLightIn, textureLocation);
+    public RenderType getRenderType(GoldenTamarinEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        return super.getRenderType(animatable, texture, bufferSource, partialTick);
     }
 
 }

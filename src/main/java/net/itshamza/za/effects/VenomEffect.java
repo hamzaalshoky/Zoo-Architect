@@ -1,6 +1,7 @@
 package net.itshamza.za.effects;
 
 import net.itshamza.za.damagesource.ModDamageSources;
+import net.itshamza.za.entity.custom.JaguarEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -13,7 +14,7 @@ public class VenomEffect extends MobEffect {
 
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        entity.hurt(ModDamageSources.VENOM, 1f);
+        entity.hurt(entity.level().damageSources().magic(), 1f);
     }
 
     @Override

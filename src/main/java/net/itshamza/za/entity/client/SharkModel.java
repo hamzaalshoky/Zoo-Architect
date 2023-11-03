@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.SharkEntity;
 import net.itshamza.za.entity.custom.SharkEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class SharkModel extends AnimatedGeoModel<SharkEntity> {
+public class SharkModel extends GeoModel<SharkEntity> {
 
     @Override
     public ResourceLocation getModelResource(SharkEntity object) {

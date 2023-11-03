@@ -46,23 +46,26 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.EnumSet;
 import java.util.List;
 
-public class FlamingoEntity extends Animal implements IAnimatable{
+public class FlamingoEntity extends Animal implements GeoEntity{
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     private static final EntityDataAccessor<Boolean> SLEEPING = SynchedEntityData.defineId(FlamingoEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> FLYING = SynchedEntityData.defineId(FlamingoEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DIGGING = SynchedEntityData.defineId(FlamingoEntity.class, EntityDataSerializers.BOOLEAN);
@@ -131,22 +134,6 @@ public class FlamingoEntity extends Animal implements IAnimatable{
         }
     }
 
-    public <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if(!this.isOnGround()){
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("fly", true));
-            return PlayState.CONTINUE;
-        }
-
-        if(event.isMoving()){
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
-            return PlayState.CONTINUE;
-        }
-        
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
-        return PlayState.CONTINUE;
-           
-
-    }
 
     public boolean isDigging() {
         return this.entityData.get(DIGGING);
@@ -156,20 +143,35 @@ public class FlamingoEntity extends Animal implements IAnimatable{
         this.entityData.set(DIGGING, digging);
     }
 
-    private PlayState attackPredicate(AnimationEvent event) {
-        if (this.isDigging()  && event.getController().getAnimationState().equals(AnimationState.Stopped)) {
-            event.getController().markNeedsReload();
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("eat", false));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.isDigging() && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("eat", Animation.LoopType.PLAY_ONCE));
             this.setDigging(false);
         }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
-        data.addAnimationController(new AnimationController(this, "attackController",
+        controllers.add(new AnimationController(this, "attackController",
                 0, this::attackPredicate));
     }
 
@@ -186,7 +188,7 @@ public class FlamingoEntity extends Animal implements IAnimatable{
 
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -196,7 +198,7 @@ public class FlamingoEntity extends Animal implements IAnimatable{
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
-        return source == DamageSource.FALL || super.isInvulnerableTo(source);
+        return source == this.level().damageSources().fall() || super.isInvulnerableTo(source);
     }
 
     public boolean isSleeping() {
@@ -232,7 +234,7 @@ public class FlamingoEntity extends Animal implements IAnimatable{
         Item itemForBartering = ModItems.COOKED_SHRIMP.get();
         if (item == itemForBartering && !this.isBaby()) {
             if (this.digCooldown <= 0) {
-                this.stateToDig = FlamingoEntity.this.level.getBlockState(FlamingoEntity.this.blockPosition().below());
+                this.stateToDig = FlamingoEntity.this.level().getBlockState(FlamingoEntity.this.blockPosition().below());
 
                 if (!this.isInWater() && stateToDig.is(BlockTags.SAND) || stateToDig.is(Tags.Blocks.GRAVEL) || stateToDig.is(Blocks.CLAY) || stateToDig.is(Blocks.DIRT) || stateToDig.is(Blocks.GRASS_BLOCK)) {
                     this.setDigging(true);
@@ -242,8 +244,7 @@ public class FlamingoEntity extends Animal implements IAnimatable{
                 }
             }
         }
-        level = player.getLevel();
-        if(!level.isClientSide()){
+        if(!level().isClientSide()){
 
         }
         return InteractionResult.CONSUME;
@@ -277,26 +278,26 @@ public class FlamingoEntity extends Animal implements IAnimatable{
                 this.digTime--;
 
                 if (this.digTime % 5 == 0 && this.digTime >= 10) {
-                    FlamingoEntity.this.level.playSound(null, FlamingoEntity.this, SoundEvents.GRAVEL_HIT, SoundSource.BLOCKS, 0.2F, 1.2F);
+                    FlamingoEntity.this.level().playSound(null, FlamingoEntity.this, SoundEvents.GRAVEL_HIT, SoundSource.BLOCKS, 0.2F, 1.2F);
                     for (int i = 0; i < 4; ++i) {
                         double d0 = FlamingoEntity.this.random.nextGaussian() * 0.01D;
                         double d1 = FlamingoEntity.this.random.nextGaussian() * 0.01D;
                         double d2 = FlamingoEntity.this.random.nextGaussian() * 0.01D;
-                        ((ServerLevel) FlamingoEntity.this.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, FlamingoEntity.this.stateToDig), FlamingoEntity.this.getX(), FlamingoEntity.this.getY(), FlamingoEntity.this.getZ(), 2, d0, d1, d2, 0.1D);
+                        ((ServerLevel) FlamingoEntity.this.level()).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, FlamingoEntity.this.stateToDig), FlamingoEntity.this.getX(), FlamingoEntity.this.getY(), FlamingoEntity.this.getZ(), 2, d0, d1, d2, 0.1D);
                     }
                 }
                 if (this.digTime == 10) {
-                    LootTable digTable = FlamingoEntity.this.level.getServer().getLootTables().get(DIGGABLES);
-                    List<ItemStack> dugItems = digTable.getRandomItems(new LootContext.Builder((ServerLevel) FlamingoEntity.this.level).create(LootContextParamSets.EMPTY));
+                    LootTable digTable = FlamingoEntity.this.level().getServer().getLootData().getLootTable(DIGGABLES);
+                    //List<ItemStack> dugItems = digTable.getRandomItems(new LootContext.Builder((ServerLevel) FlamingoEntity.this.level()).create(LootContextParamSets.EMPTY));
 
-                    if (!dugItems.isEmpty()) {
-                        FlamingoEntity.this.level.playSound(null, FlamingoEntity.this, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.1F, 1.2F);
-                    }
+                    //if (!dugItems.isEmpty()) {
+                    //    FlamingoEntity.this.level().playSound(null, FlamingoEntity.this, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.1F, 1.2F);
+                    //}
 
-                    for (ItemStack stack : dugItems) {
-                        ItemEntity itemEntity = new ItemEntity(FlamingoEntity.this.level, FlamingoEntity.this.getX(), FlamingoEntity.this.getY(), FlamingoEntity.this.getZ(), stack);
-                        FlamingoEntity.this.level.addFreshEntity(itemEntity);
-                    }
+                    //for (ItemStack stack : dugItems) {
+                    //    ItemEntity itemEntity = new ItemEntity(FlamingoEntity.this.level(), FlamingoEntity.this.getX(), FlamingoEntity.this.getY(), FlamingoEntity.this.getZ(), stack);
+                   //     FlamingoEntity.this.level().addFreshEntity(itemEntity);
+                    //}
                     if(Math.random() < 0.25){
                         FlamingoEntity.this.spawnAtLocation(Items.FLINT);
                     }else if(Math.random() < 0.25){
@@ -317,8 +318,8 @@ public class FlamingoEntity extends Animal implements IAnimatable{
                             FlamingoEntity.this.spawnAtLocation(Items.RAW_IRON);
                         }
                     }
-                    ExperienceOrb xp = new ExperienceOrb(FlamingoEntity.this.level, FlamingoEntity.this.getX(), FlamingoEntity.this.getY(), FlamingoEntity.this.getZ(), FlamingoEntity.this.random.nextInt(1, 6));
-                    FlamingoEntity.this.level.addFreshEntity(xp);
+                    ExperienceOrb xp = new ExperienceOrb(FlamingoEntity.this.level(), FlamingoEntity.this.getX(), FlamingoEntity.this.getY(), FlamingoEntity.this.getZ(), FlamingoEntity.this.random.nextInt(1, 6));
+                    FlamingoEntity.this.level().addFreshEntity(xp);
                 }
             } else {
                 this.stop();

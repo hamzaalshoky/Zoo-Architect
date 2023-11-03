@@ -1,11 +1,11 @@
 package net.itshamza.za.damagesource;
 
+import net.minecraft.core.Holder;
 import net.minecraft.world.damagesource.DamageSource;
 
-public class VenomDamageSource extends DamageSource {
+public class VenomDamageSource /* extends DamageSource*/ {
 
-    public VenomDamageSource(String p_19333_) {
-        super(p_19333_);
-        p_19333_ = "venom";
-    }
+    //public VenomDamageSource(DamageSource sorc) {
+    //    super(<Holder>sorc);
+    //}
 }

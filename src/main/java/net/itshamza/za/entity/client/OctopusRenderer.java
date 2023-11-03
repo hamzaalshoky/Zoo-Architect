@@ -7,7 +7,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
+
+import javax.annotation.Nullable;
 
 public class OctopusRenderer extends GeoEntityRenderer<OctopusEntity> {
     private static final ResourceLocation TEXTURE = new ResourceLocation("za:textures/entity/octopus/octopus.png");
@@ -28,10 +30,7 @@ public class OctopusRenderer extends GeoEntityRenderer<OctopusEntity> {
 
 
     @Override
-    public RenderType getRenderType(OctopusEntity animatable, float partialTicks, PoseStack stack,
-                                    MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
-                                    ResourceLocation textureLocation) {
-        stack.scale(1F, 1F, 1F);
-        return super.getRenderType(animatable, partialTicks, stack, renderTypeBuffer, vertexBuilder, packedLightIn, textureLocation);
+    public RenderType getRenderType(OctopusEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        return super.getRenderType(animatable, texture, bufferSource, partialTick);
     }
 }

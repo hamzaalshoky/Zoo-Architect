@@ -27,7 +27,7 @@ public class VultureAIStealFromPlayers extends Goal {
 
     @Override
     public boolean canUse() {
-        long worldTime = this.seagull.level.getGameTime() % 10;
+        long worldTime = this.seagull.level().getGameTime() % 10;
         if (this.seagull.getNoActionTime() >= 100 && worldTime != 0) {
             return false;
         }
@@ -94,7 +94,7 @@ public class VultureAIStealFromPlayers extends Goal {
     }
 
     private Player getClosestValidPlayer(){
-        List<Player> list = seagull.level.getEntitiesOfClass(Player.class, seagull.getBoundingBox().inflate(10, 25, 10), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
+        List<Player> list = seagull.level().getEntitiesOfClass(Player.class, seagull.getBoundingBox().inflate(10, 25, 10), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
         Player closest = null;
         if(!list.isEmpty()){
             for(Player player : list){

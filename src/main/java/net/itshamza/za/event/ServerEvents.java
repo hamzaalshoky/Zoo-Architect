@@ -8,11 +8,7 @@ import net.minecraft.world.entity.animal.*;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Husk;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -21,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 public class ServerEvents {
 
     @SubscribeEvent
-    public void onEntityJoinWorld(LivingSpawnEvent.SpecialSpawn event) {
+    public void onEntityJoinWorld(MobSpawnEvent event) {
         try {
             if (event.getEntity() != null && event.getEntity() instanceof Husk) {
                 Husk spider = (Husk) event.getEntity();

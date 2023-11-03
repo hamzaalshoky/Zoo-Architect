@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.RattlesnakeEntity;
 import net.itshamza.za.entity.custom.RattlesnakeEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class RattlesnakeModel extends AnimatedGeoModel<RattlesnakeEntity> {
+public class RattlesnakeModel extends GeoModel<RattlesnakeEntity> {
 
     @Override
     public ResourceLocation getModelResource(RattlesnakeEntity object) {

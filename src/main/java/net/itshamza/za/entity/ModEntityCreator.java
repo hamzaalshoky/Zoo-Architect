@@ -65,6 +65,7 @@ public class ModEntityCreator {
         event.put(ModEntityCreator.CHAMELEON.get(), ChameleonEntity.setAttributes());
         event.put(ModEntityCreator.LEECH.get(), LeechEntity.setAttributes());
         event.put(ModEntityCreator.GOLDEN_TAMARIN.get(), GoldenTamarinEntity.setAttributes());
+
         event.put(ModEntityCreator.SCORPION.get(), ScorpionEntity.setAttributes());
         event.put(ModEntityCreator.FENNEC_FOX.get(), FennecFoxEntity.setAttributes());
         event.put(ModEntityCreator.STEPPE_EAGLE.get(), SteppeEagleEntity.setAttributes());
@@ -74,6 +75,7 @@ public class ModEntityCreator {
         event.put(ModEntityCreator.COBRA.get(), CobraEntity.setAttributes());
         event.put(ModEntityCreator.FRILLED_LIZARD.get(), FrilledLizardEntity.setAttributes());
         event.put(ModEntityCreator.VULTURE.get(), VultureEntity.setAttributes());
+
         event.put(ModEntityCreator.CRAB.get(), CrabEntity.setAttributes());
         event.put(ModEntityCreator.PENGUIN.get(), PenguinEntity.setAttributes());
         event.put(ModEntityCreator.OCTOPUS.get(), OctopusEntity.setAttributes());
@@ -83,6 +85,7 @@ public class ModEntityCreator {
         event.put(ModEntityCreator.COPEPOD.get(), CopepodEntity.setAttributes());
         event.put(ModEntityCreator.SHARK.get(), SharkEntity.setAttributes());
         event.put(ModEntityCreator.MANTA_RAY.get(), MantaRayEntity.setAttributes());
+
         event.put(ModEntityCreator.SALAMANDER.get(), SalamanderEntity.setAttributes());
         event.put(ModEntityCreator.CARDINAL.get(), CardinalEntity.setAttributes());
         event.put(ModEntityCreator.MOUSE.get(), MouseEntity.setAttributes());
@@ -102,6 +105,7 @@ public class ModEntityCreator {
         event.registerEntityRenderer(ModEntityCreator.CHAMELEON.get(), ChameleonRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.LEECH.get(), LeechRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.GOLDEN_TAMARIN.get(), GoldenTamarinRenderer::new);
+
         event.registerEntityRenderer(ModEntityCreator.SCORPION.get(), ScorpionRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.FENNEC_FOX.get(), FennecFoxRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.STEPPE_EAGLE.get(), SteppeEagleRenderer::new);
@@ -111,6 +115,7 @@ public class ModEntityCreator {
         event.registerEntityRenderer(ModEntityCreator.COBRA.get(), CobraRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.FRILLED_LIZARD.get(), FrilledLizardRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.VULTURE.get(), VultureRenderer::new);
+
         event.registerEntityRenderer(ModEntityCreator.CRAB.get(), CrabRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.PENGUIN.get(), PenguinRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.OCTOPUS.get(), OctopusRenderer::new);
@@ -120,6 +125,7 @@ public class ModEntityCreator {
         event.registerEntityRenderer(ModEntityCreator.COPEPOD.get(), CopepodRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.SHARK.get(), SharkRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.MANTA_RAY.get(), MantaRayRenderer::new);
+
         event.registerEntityRenderer(ModEntityCreator.SALAMANDER.get(), SalamanderRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.CARDINAL.get(), CardinalRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.MOUSE.get(), MouseRenderer::new);

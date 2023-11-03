@@ -70,7 +70,7 @@ public class PlayDeadGoal<T extends LivingEntity> extends Goal {
      * method as well.
      */
     public boolean canUse() {
-        this.toAvoid = this.mob.level.getNearestEntity(this.mob.level.getEntitiesOfClass(this.avoidClass, this.mob.getBoundingBox().inflate((double)this.maxDist, 3.0D, (double)this.maxDist), (p_148078_) -> {
+        this.toAvoid = this.mob.level().getNearestEntity(this.mob.level().getEntitiesOfClass(this.avoidClass, this.mob.getBoundingBox().inflate((double)this.maxDist, 3.0D, (double)this.maxDist), (p_148078_) -> {
             return true;
         }), this.avoidEntityTargeting, this.mob, this.mob.getX(), this.mob.getY(), this.mob.getZ());
         if (this.toAvoid == null) {
@@ -116,6 +116,7 @@ public class PlayDeadGoal<T extends LivingEntity> extends Goal {
     public void tick() {
         if (this.mob.distanceToSqr(this.toAvoid) < 25.0D) {
             this.mob.setPlayingDead(true);
+            this.mob.getNavigation().stop();
         } else {
             this.mob.getNavigation().setSpeedModifier(this.walkSpeedModifier);
             this.mob.setPlayingDead(false);

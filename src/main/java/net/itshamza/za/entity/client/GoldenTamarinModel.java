@@ -4,12 +4,10 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.GoldenTamarinEntity;
 import net.itshamza.za.entity.custom.GoldenTamarinEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.processor.IBone;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
-import software.bernie.geckolib3.model.provider.data.EntityModelData;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.model.data.EntityModelData;
 
-public class GoldenTamarinModel extends AnimatedGeoModel<GoldenTamarinEntity> {
+public class GoldenTamarinModel extends GeoModel<GoldenTamarinEntity> {
     public static final ResourceLocation MODEL = new ResourceLocation("za:geo/golden_tamarin.geo.json");
     public static final ResourceLocation GLOW_TEXTURE = new ResourceLocation("za:textures/entity/golden_tamarin/golden_tamarin_pebble.png");
     public static final ResourceLocation DIAPER = new ResourceLocation("za:textures/entity/golden_tamarin/golden_tamarin_diapers.png");
@@ -29,19 +27,4 @@ public class GoldenTamarinModel extends AnimatedGeoModel<GoldenTamarinEntity> {
         return new ResourceLocation(ZooArchitect.MOD_ID, "animations/golden_tamarin.animation.json");
     }
 
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    public void setLivingAnimations(GoldenTamarinEntity entity, Integer uniqueID, AnimationEvent customPredicate) {
-        super.setLivingAnimations(entity, uniqueID, customPredicate);
-        if(!entity.isSitting()){
-            IBone head = this.getAnimationProcessor().getBone("head");
-
-            EntityModelData extraData = (EntityModelData) customPredicate.getExtraDataOfType(EntityModelData.class).get(0);
-            if (head != null) {
-                head.setRotationX(extraData.headPitch * ((float) Math.PI / 180F));
-                head.setRotationY(extraData.netHeadYaw * ((float) Math.PI / 180F));
-            }
-        }
-    }
 }

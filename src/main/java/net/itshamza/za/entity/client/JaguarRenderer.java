@@ -11,8 +11,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class JaguarRenderer extends GeoEntityRenderer<JaguarEntity> {
@@ -29,7 +30,7 @@ public class JaguarRenderer extends GeoEntityRenderer<JaguarEntity> {
     public JaguarRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new JaguarModel());
         this.shadowRadius = 0.3f;
-        this.addLayer(new JaguarEyesLayer<>(this));
+        this.addRenderLayer(new JaguarEyesLayer<>(this));
     }
 
     @Override
@@ -39,14 +40,7 @@ public class JaguarRenderer extends GeoEntityRenderer<JaguarEntity> {
 
 
     @Override
-    public RenderType getRenderType(JaguarEntity animatable, float partialTicks, PoseStack stack,
-                                    MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
-                                    ResourceLocation textureLocation) {
-        if(animatable.isBaby()) {
-            stack.scale(0.4F, 0.4F, 0.4F);
-        } else {
-            stack.scale(1.2F, 1.2F, 1.2F);
-        }
-        return super.getRenderType(animatable, partialTicks, stack, renderTypeBuffer, vertexBuilder, packedLightIn, textureLocation);
+    public RenderType getRenderType(JaguarEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        return super.getRenderType(animatable, texture, bufferSource, partialTick);
     }
 }

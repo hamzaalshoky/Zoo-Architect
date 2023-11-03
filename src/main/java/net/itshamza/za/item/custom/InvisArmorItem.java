@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.spongepowered.asm.util.Locals;
 
 public class InvisArmorItem extends ArmorItem {
-    public InvisArmorItem(ArmorMaterial material, EquipmentSlot slot, Properties settings) {
+    public InvisArmorItem(ArmorMaterial material, Type slot, Properties settings) {
         super(material, slot, settings);
     }
 

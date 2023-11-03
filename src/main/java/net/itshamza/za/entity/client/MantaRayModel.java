@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.MantaRayEntity;
 import net.itshamza.za.entity.custom.MantaRayEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class MantaRayModel extends AnimatedGeoModel<MantaRayEntity> {
+public class MantaRayModel extends GeoModel<MantaRayEntity> {
 
     @Override
     public ResourceLocation getModelResource(MantaRayEntity object) {

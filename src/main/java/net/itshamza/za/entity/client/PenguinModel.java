@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.PenguinEntity;
 import net.itshamza.za.entity.custom.PenguinEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class PenguinModel extends AnimatedGeoModel<PenguinEntity> {
+public class PenguinModel extends GeoModel<PenguinEntity> {
 
     @Override
     public ResourceLocation getModelResource(PenguinEntity object) {

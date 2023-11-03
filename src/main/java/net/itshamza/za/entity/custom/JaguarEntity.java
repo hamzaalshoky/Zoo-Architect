@@ -1,12 +1,9 @@
 package net.itshamza.za.entity.custom;
 
-import net.itshamza.za.damagesource.ModDamageSources;
 import net.itshamza.za.entity.ModEntityCreator;
 import net.itshamza.za.entity.custom.ai.AttackPounce;
 import net.itshamza.za.entity.custom.ai.StealthAttackableTargetGoal;
 import net.itshamza.za.entity.custom.variant.JaguarVariant;
-import net.itshamza.za.item.ModItems;
-import net.itshamza.za.misc.ZAAdvancementTriggerRegistry;
 import net.itshamza.za.sound.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -14,18 +11,13 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.MoveControl;
-import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -39,27 +31,26 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.EnumSet;
 import java.util.Random;
-import java.util.UUID;
 import java.util.function.Predicate;
 
-public class JaguarEntity extends Animal implements IAnimatable {
+public class JaguarEntity extends Animal implements GeoEntity {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE_VARIANT =
             SynchedEntityData.defineId(JaguarEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> RUNNING = SynchedEntityData.defineId(JaguarEntity.class, EntityDataSerializers.BOOLEAN);
@@ -119,7 +110,7 @@ public class JaguarEntity extends Animal implements IAnimatable {
     }
 
     protected SoundEvent getAmbientSound() {
-        return isStealth() ? super.getAmbientSound() : ModSounds.LION_AMBIENT.get();
+        return isStealth() ? super.getAmbientSound() : ModSounds.JAGUAR_AMBIENT.get();
     }
 
     @Override
@@ -136,7 +127,7 @@ public class JaguarEntity extends Animal implements IAnimatable {
             p_21372_.setSecondsOnFire(i * 4);
         }
 
-        boolean flag = p_21372_.hurt(ModDamageSources.MAUL, f);
+        boolean flag = p_21372_.hurt(this.level().damageSources().mobAttack(this), f);
         if (flag) {
             if (f1 > 0.0F && p_21372_ instanceof LivingEntity) {
                 ((LivingEntity)p_21372_).knockback((double)(f1 * 0.5F), (double)Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
@@ -151,11 +142,11 @@ public class JaguarEntity extends Animal implements IAnimatable {
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
-        return ModSounds.LION_HURT.get();
+        return ModSounds.JAGUAR_HURT.get();
     }
 
     protected SoundEvent getDeathSound() {
-        return ModSounds.LION_DEATH.get();
+        return ModSounds.JAGUAR_DEATH.get();
     }
 
     protected float getSoundVolume() {
@@ -170,32 +161,44 @@ public class JaguarEntity extends Animal implements IAnimatable {
         this.entityData.set(STEALTH_MODE, Boolean.valueOf(bar));
     }
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
-        if (this.isInWaterOrBubble()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("swim", true));
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
-        if (this.isRunning()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("run", true));
+        if(this.isTackling()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("pounce", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
-
-        if (this.isTackling()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("pounce", true));
-            return PlayState.CONTINUE;
-        }
-
-        if(!this.isOnGround()){
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("pounce", true));
+        if(this.isFallFlying()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("pounce", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
         return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
+        }
+
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
+                0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     public static class JaguarGroupData extends AgeableMob.AgeableMobGroupData {
@@ -248,12 +251,6 @@ public class JaguarEntity extends Animal implements IAnimatable {
         return super.getVisibilityPercent(lookingEntity);
     }
 
-    @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
-                0, this::predicate));
-    }
-
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob p_146744_) {
@@ -262,7 +259,7 @@ public class JaguarEntity extends Animal implements IAnimatable {
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -287,7 +284,7 @@ public class JaguarEntity extends Animal implements IAnimatable {
         prevStealthProgress = stealthProgress;
         this.prevBipedProgress = bipedProgress;
         this.prevTackleProgress = tackleProgress;
-        if (!level.isClientSide) {
+        if (!level().isClientSide) {
             if (isRunning() && !hasSpedUp) {
                 hasSpedUp = true;
                 maxUpStep = 1F;
@@ -352,7 +349,7 @@ public class JaguarEntity extends Animal implements IAnimatable {
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
-        return source == DamageSource.FALL || super.isInvulnerableTo(source);
+        return source == this.level().damageSources().fall() || super.isInvulnerableTo(source);
     }
 
     private class AIMelee extends Goal {
@@ -388,17 +385,17 @@ public class JaguarEntity extends Animal implements IAnimatable {
                     jaguar.setStealth(false);
                     jaguar.setRunning(true);
                 }
-                if (dist < 12 && jaguar.isOnGround() && jumpAttemptCooldown == 0) {
+                if (dist < 12 && !jaguar.isFallFlying() && jumpAttemptCooldown == 0) {
                     jumpAttemptCooldown = 70;
                 }
                 if (dist < 4 + target.getBbWidth()){
-                    target.hurt(ModDamageSources.MAUL, 7 + jaguar.getRandom().nextInt(5));
+                    target.hurt(level().damageSources().mobAttack(JaguarEntity.this), 7 + jaguar.getRandom().nextInt(5));
                 }
                 jaguar.getNavigation().stop();
                 Vec3 vec = target.position().subtract(jaguar.position());
                 jaguar.setYRot(-((float) Mth.atan2(vec.x, vec.z)) * (180F / (float) Math.PI));
                 jaguar.yBodyRot = jaguar.getYRot();
-                if (jaguar.isOnGround()) {
+                if (!jaguar.isFallFlying()) {
                     Vec3 vector3d1 = new Vec3(target.getX() - this.jaguar.getX(), 0.0D, target.getZ() - this.jaguar.getZ());
                     if (vector3d1.lengthSqr() > 1.0E-7D) {
                         vector3d1 = vector3d1.normalize().scale(Math.min(dist, 15) * 0.2F);
@@ -406,7 +403,7 @@ public class JaguarEntity extends Animal implements IAnimatable {
                     this.jaguar.setDeltaMovement(vector3d1.x, vector3d1.y + 0.3F + 0.1F * Mth.clamp(target.getEyeY() - this.jaguar.getY(), 0, 2), vector3d1.z);
                 }
                 if (dist < target.getBbWidth() + 3) {
-                    target.hurt(ModDamageSources.MAUL, 2);
+                    target.hurt(level().damageSources().mobAttack(JaguarEntity.this), 2);
                     jaguar.setRunning(false);
                     jaguar.setStealth(false);
                 }

@@ -48,20 +48,23 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnimal {
+public class SteppeEagleEntity extends Animal implements GeoEntity, FlyingAnimal {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     public static final Predicate<LivingEntity> PREY_SELECTOR = (p_30437_) -> {
         EntityType<?> entitytype = p_30437_.getType();
         return entitytype == EntityType.SHEEP || entitytype == EntityType.SALMON || entitytype == ModEntityCreator.MOUSE.get() || entitytype == ModEntityCreator.FENNEC_FOX.get() || entitytype == ModEntityCreator.MAMBA.get() || entitytype == ModEntityCreator.RATTLESNAKE.get()|| entitytype == ModEntityCreator.VIPER.get();
@@ -131,7 +134,7 @@ public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnim
 
     @Override
     public boolean isFlying() {
-        return !this.isOnGround();
+        return this.isFallFlying();
     }
 
     @Override
@@ -174,8 +177,8 @@ public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnim
         super.aiStep();
         if (this.isAlive() && this.isLayingEgg() && this.layEggCounter >= 1 && this.layEggCounter % 5 == 0) {
             BlockPos blockpos = this.blockPosition();
-            if (SteppeEagleEggBlock.onSand(this.level, blockpos)) {
-                this.level.levelEvent(2001, blockpos, Block.getId(this.level.getBlockState(blockpos.below())));
+            if (SteppeEagleEggBlock.onSand(this.level(), blockpos)) {
+                this.level().levelEvent(2001, blockpos, Block.getId(this.level().getBlockState(blockpos.below())));
             }
         }
 
@@ -190,19 +193,32 @@ public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnim
         return navigation;
     }
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (this.isFlying()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("fly", true));
-        } else {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(this.isFlying()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("fly", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
         }
+
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
+        }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     @Nullable
@@ -228,7 +244,7 @@ public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnim
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -239,7 +255,7 @@ public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnim
 
         @Override
         public boolean isStableDestination(BlockPos pos) {
-            return super.isStableDestination(pos) && this.mob.level.getBlockState(pos).is(ModBlocks.STEPPE_EAGLE_NEST.get());
+            return super.isStableDestination(pos) && this.mob.level().getBlockState(pos).is(ModBlocks.STEPPE_EAGLE_NEST.get());
         }
     }
 
@@ -277,7 +293,7 @@ public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnim
             p_21372_.setSecondsOnFire(i * 4);
         }
 
-        boolean flag = p_21372_.hurt(DamageSource.mobAttack(this), f);
+        boolean flag = p_21372_.hurt(level().damageSources().mobAttack(this), f);
         if (flag) {
             if (f1 > 0.0F && p_21372_ instanceof LivingEntity) {
                 ((LivingEntity)p_21372_).knockback((double)(f1 * 0.5F), (double) Mth.sin(this.getYRot() * ((float)Math.PI / 180F)), (double)(-Mth.cos(this.getYRot() * ((float)Math.PI / 180F))));
@@ -363,7 +379,7 @@ public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnim
                 if (this.turtle.layEggCounter < 1) {
                     this.turtle.setLayingEgg(true);
                 } else if (this.turtle.layEggCounter > this.adjustedTickDelay(200)) {
-                    Level level = this.turtle.level;
+                    Level level = this.turtle.level();
                     level.playSound((Player)null, blockpos, SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.3F, 0.9F + level.random.nextFloat() * 0.2F);
                     level.setBlock(this.blockPos.above(), ModBlocks.STEPPE_EAGLE_EGG.get().defaultBlockState().setValue(SteppeEagleEggBlock.EGGS, Integer.valueOf(this.turtle.random.nextInt(4) + 1)), 3);
                     this.turtle.setHasEgg(false);

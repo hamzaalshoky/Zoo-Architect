@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.CobraEntity;
 import net.itshamza.za.entity.custom.CobraEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class CobraModel extends AnimatedGeoModel<CobraEntity> {
+public class CobraModel extends GeoModel<CobraEntity> {
     
     @Override
     public ResourceLocation getModelResource(CobraEntity object) {

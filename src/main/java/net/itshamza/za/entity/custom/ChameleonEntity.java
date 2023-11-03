@@ -38,22 +38,23 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.Animation;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.Random;
 
 
-public class ChameleonEntity extends Animal implements IAnimatable {
+public class ChameleonEntity extends Animal implements GeoEntity {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(ChameleonEntity.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Boolean> UPSIDE_DOWN = SynchedEntityData.defineId(ChameleonEntity.class, EntityDataSerializers.BOOLEAN);
     public float prevUpsideDownProgress;
@@ -114,39 +115,40 @@ public class ChameleonEntity extends Animal implements IAnimatable {
     private void switchNavigator(boolean rightsideUp) {
         if (rightsideUp) {
             this.moveControl = new MoveControl(this);
-            this.navigation = new GroundPathNavigation(this, level);
+            this.navigation = new GroundPathNavigation(this, level());
             this.isUpsideDownNavigator = false;
         } else {
             this.moveControl = new FlightMoveController(this, 1.1F, false);
-            this.navigation = new DirectPathNavigator(this, level);
+            this.navigation = new DirectPathNavigator(this, level());
             this.isUpsideDownNavigator = true;
         }
     }
-    
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
+
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
         return PlayState.CONTINUE;
     }
 
-    private PlayState attackPredicate(AnimationEvent event) {
-        if(this.swinging && event.getController().getAnimationState().equals(AnimationState.Stopped)){
-            event.getController().markNeedsReload();
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("attack", false));
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
             this.swinging = false;
         }
+
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
-        data.addAnimationController(new AnimationController(this, "attackController",
+        controllers.add(new AnimationController(this, "attackController",
                 0, this::attackPredicate));
     }
 
@@ -172,12 +174,12 @@ public class ChameleonEntity extends Animal implements IAnimatable {
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
-        return source == DamageSource.FALL || super.isInvulnerableTo(source);
+        return source == this.level().damageSources().fall() || super.isInvulnerableTo(source);
     }
 
     public void tick() {
         super.tick();
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.setClimbing(this.horizontalCollision);
         }
 
@@ -192,28 +194,28 @@ public class ChameleonEntity extends Animal implements IAnimatable {
         if (!this.isUpsideDown() && upsideDownProgress > 0F) {
             upsideDownProgress--;
         }
-        if (!level.isClientSide) {
+        if (!level().isClientSide) {
             BlockPos abovePos = this.getPositionAbove();
-            BlockState aboveState = level.getBlockState(abovePos);
-            BlockState belowState = level.getBlockState(this.getBlockPosBelowThatAffectsMyMovement());
-            BlockPos worldHeight = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, this.blockPosition());
-            boolean validAboveState = aboveState.isFaceSturdy(level, abovePos, Direction.DOWN);
-            boolean validBelowState = belowState.isFaceSturdy(level, this.getBlockPosBelowThatAffectsMyMovement(), Direction.UP);
+            BlockState aboveState = level().getBlockState(abovePos);
+            BlockState belowState = level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement());
+            BlockPos worldHeight = level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, this.blockPosition());
+            boolean validAboveState = aboveState.isFaceSturdy(level(), abovePos, Direction.DOWN);
+            boolean validBelowState = belowState.isFaceSturdy(level(), this.getBlockPosBelowThatAffectsMyMovement(), Direction.UP);
             LivingEntity attackTarget = this.getTarget();
             if (jumpingUp && this.getY() > worldHeight.getY()) {
                 jumpingUp = false;
             }
-            if ((this.onGround && jumpingUp)) {
+            if ((!this.isFallFlying() && jumpingUp)) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0, 2F, 0));
                 jumpingUp = true;
             }
             if (this.isUpsideDown()) {
                 jumpingUp = false;
-                this.setNoGravity(!this.onGround);
+                this.setNoGravity(this.isFallFlying());
                 float f = 0.91F;
                 this.setDeltaMovement(this.getDeltaMovement().multiply(f, 1F, f));
                 if (!this.verticalCollision) {
-                    if (this.onGround || validBelowState || upwardsFallingTicks > 5) {
+                    if (!this.isFallFlying() || validBelowState || upwardsFallingTicks > 5) {
                         this.setUpsideDown(false);
                         upwardsFallingTicks = 0;
                     } else {
@@ -229,7 +231,7 @@ public class ChameleonEntity extends Animal implements IAnimatable {
                     upwardsFallingTicks = 0;
                     this.setDeltaMovement(this.getDeltaMovement().add(0, -0.3F, 0));
                 }
-                if (this.isInWall() && level.isEmptyBlock(this.getBlockPosBelowThatAffectsMyMovement())) {
+                if (this.isInWall() && level().isEmptyBlock(this.getBlockPosBelowThatAffectsMyMovement())) {
                     this.setPos(this.getX(), this.getY() - 1, this.getZ());
                 }
             } else {
@@ -256,7 +258,7 @@ public class ChameleonEntity extends Animal implements IAnimatable {
     }
 
     protected BlockPos getPositionAbove() {
-        return new BlockPos(this.position().x, this.getBoundingBox().maxY + 0.5000001D, this.position().z);
+        return new BlockPos((int) this.position().x, (int) (this.getBoundingBox().maxY + 0.5000001D), (int) this.position().z);
     }
 
     public boolean onClimbable() {
@@ -290,7 +292,7 @@ public class ChameleonEntity extends Animal implements IAnimatable {
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -306,8 +308,8 @@ public class ChameleonEntity extends Animal implements IAnimatable {
                 for (int i = 0; i < 15; i++) {
                     Random rand = new Random();
                     BlockPos randPos = ChameleonEntity.this.blockPosition().offset(rand.nextInt(16) - 8, -2, rand.nextInt(16) - 8);
-                    BlockPos lowestPos = ChameleonEntity.getLowestPos(level, randPos);
-                    if (level.getBlockState(lowestPos).isFaceSturdy(level, lowestPos, Direction.DOWN)) {
+                    BlockPos lowestPos = ChameleonEntity.getLowestPos(level(), randPos);
+                    if (level().getBlockState(lowestPos).isFaceSturdy(level(), lowestPos, Direction.DOWN)) {
                         return Vec3.atCenterOf(lowestPos);
                     }
                 }

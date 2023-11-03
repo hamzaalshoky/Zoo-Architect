@@ -44,14 +44,16 @@ import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -59,12 +61,14 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 
-public class PenguinEntity extends TamableAnimal implements IAnimatable {
+public class PenguinEntity extends TamableAnimal implements GeoEntity {
     private static final EntityDataAccessor<Boolean> DIGGING = SynchedEntityData.defineId(PenguinEntity.class, EntityDataSerializers.BOOLEAN);
     protected BlockState stateToDig;
     protected int digCooldown = 10;
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private boolean isOnIce = false;
+
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
 
     public PenguinEntity(EntityType<? extends TamableAnimal> p_27557_, Level p_27558_) {
         super(p_27557_, p_27558_);
@@ -112,34 +116,45 @@ public class PenguinEntity extends TamableAnimal implements IAnimatable {
     protected float getSoundVolume() {
         return 0.2F;
     }
-    
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (event.isMoving() && this.isTame()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("slide", true));
+
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
-        }else if (event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
+        }
+        if(this.isDigging()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("dig", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isTame() && animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+            return PlayState.CONTINUE;
+        }
+        if(this.isInWaterOrBubble()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        if (this.isDigging()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("dig", true));
-            return PlayState.CONTINUE;
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
         }
 
-        if (this.isInWaterOrBubble()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("swim", true));
-            return PlayState.CONTINUE;
-        }
-
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     @Nullable
@@ -154,7 +169,7 @@ public class PenguinEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -167,7 +182,7 @@ public class PenguinEntity extends TamableAnimal implements IAnimatable {
         Item itemForBartering = ModItems.RAW_SHRIMP.get();
 
         if (item == itemForTaming && !isTame()) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             } else {
                 if (!player.getAbilities().instabuild) {
@@ -175,11 +190,11 @@ public class PenguinEntity extends TamableAnimal implements IAnimatable {
                 }
 
                 if (this.random.nextInt(3) == 0 && !ForgeEventFactory.onAnimalTame(this, player)) {
-                    if (!this.level.isClientSide) {
+                    if (!this.level().isClientSide) {
                         super.tame(player);
                         this.navigation.recomputePath();
                         this.setTarget(null);
-                        this.level.broadcastEntityEvent(this, (byte) 7);
+                        this.level().broadcastEntityEvent(this, (byte) 7);
                     }
                 }
 
@@ -187,7 +202,7 @@ public class PenguinEntity extends TamableAnimal implements IAnimatable {
             }
         }else if (item == itemForBartering) {
             if (this.digCooldown <= 0) {
-                this.stateToDig = PenguinEntity.this.level.getBlockState(PenguinEntity.this.blockPosition().below());
+                this.stateToDig = PenguinEntity.this.level().getBlockState(PenguinEntity.this.blockPosition().below());
 
                 if (this.isInWaterOrBubble()) {
                     this.setDigging(true);
@@ -198,7 +213,7 @@ public class PenguinEntity extends TamableAnimal implements IAnimatable {
             }
         }
 
-        if(isTame() && !this.level.isClientSide && hand == InteractionHand.MAIN_HAND) {
+        if(isTame() && !this.level().isClientSide && hand == InteractionHand.MAIN_HAND) {
             return InteractionResult.SUCCESS;
         }
 

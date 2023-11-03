@@ -41,23 +41,25 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.AnimationState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoEntity;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-public class MantaRayEntity extends WaterAnimal implements IAnimatable {
+public class MantaRayEntity extends WaterAnimal implements GeoEntity {
 
-    private AnimationFactory factory = new AnimationFactory(this);
+    private AnimatableInstanceCache factory = new SingletonAnimatableInstanceCache(this);
     private static final EntityDataAccessor<Integer> MOISTNESS_LEVEL = SynchedEntityData.defineId(ManateeEntity.class, EntityDataSerializers.INT);
     static final TargetingConditions SWIM_WITH_PLAYER_TARGETING = TargetingConditions.forNonCombat().range(10.0D).ignoreLineOfSight();
     private static final EntityDataAccessor<Integer> FEEDING_TIME = SynchedEntityData.defineId(ManateeEntity.class, EntityDataSerializers.INT);
@@ -99,31 +101,38 @@ public class MantaRayEntity extends WaterAnimal implements IAnimatable {
         return 0.2F;
     }
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        if (this.isInWaterOrBubble()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
+    private PlayState predicate(software.bernie.geckolib.core.animation.AnimationState animationState) {
+        if(this.isInWaterOrBubble() && animationState.isMoving()) {
+            animationState.getController().setAnimation(RawAnimation.begin().then("swim", Animation.LoopType.LOOP));
             return PlayState.CONTINUE;
         }
 
-        if (this.isInWaterOrBubble() && event.isMoving()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("swim", true));
-            return PlayState.CONTINUE;
+        animationState.getController().setAnimation(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState attackPredicate(AnimationState state) {
+        if(this.swinging && state.getController().getAnimationState().equals(AnimationController.State.STOPPED)) {
+            state.getController().forceAnimationReset();
+            state.getController().setAnimation(RawAnimation.begin().then("attack", Animation.LoopType.PLAY_ONCE));
+            this.swinging = false;
         }
 
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("idle", true));
         return PlayState.CONTINUE;
     }
 
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this, "controller",
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController(this, "controller",
                 0, this::predicate));
+        controllers.add(new AnimationController(this, "attackController",
+                0, this::attackPredicate));
     }
 
     @Nullable
 
     @Override
-    public AnimationFactory getFactory() {
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
         return factory;
     }
 
@@ -204,26 +213,25 @@ public class MantaRayEntity extends WaterAnimal implements IAnimatable {
             } else {
                 this.setMoisntessLevel(this.getMoistnessLevel() - 1);
                 if (this.getMoistnessLevel() <= 0) {
-                    this.hurt(DamageSource.DRY_OUT, 1.0F);
+                    this.hurt(this.level().damageSources().dryOut(), 1.0F);
                 }
 
-                if (this.onGround) {
+                if (!this.isFallFlying()) {
                     this.setDeltaMovement(this.getDeltaMovement().add((double)((this.random.nextFloat() * 2.0F - 1.0F) * 0.2F), 0.5D, (double)((this.random.nextFloat() * 2.0F - 1.0F) * 0.2F)));
                     this.setYRot(this.random.nextFloat() * 360.0F);
-                    this.onGround = false;
                     this.hasImpulse = true;
                 }
             }
 
-            if (this.level.isClientSide && this.isInWater() && this.getDeltaMovement().lengthSqr() > 0.03D) {
+            if (this.level().isClientSide && this.isInWater() && this.getDeltaMovement().lengthSqr() > 0.03D) {
                 Vec3 vec3 = this.getViewVector(0.0F);
                 float f = Mth.cos(this.getYRot() * ((float)Math.PI / 180F)) * 0.3F;
                 float f1 = Mth.sin(this.getYRot() * ((float)Math.PI / 180F)) * 0.3F;
                 float f2 = 1.2F - this.random.nextFloat() * 0.7F;
 
                 for(int i = 0; i < 2; ++i) {
-                    this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vec3.x * (double)f2 + (double)f, this.getY() - vec3.y, this.getZ() - vec3.z * (double)f2 + (double)f1, 0.0D, 0.0D, 0.0D);
-                    this.level.addParticle(ParticleTypes.DOLPHIN, this.getX() - vec3.x * (double)f2 - (double)f, this.getY() - vec3.y, this.getZ() - vec3.z * (double)f2 - (double)f1, 0.0D, 0.0D, 0.0D);
+                    this.level().addParticle(ParticleTypes.DOLPHIN, this.getX() - vec3.x * (double)f2 + (double)f, this.getY() - vec3.y, this.getZ() - vec3.z * (double)f2 + (double)f1, 0.0D, 0.0D, 0.0D);
+                    this.level().addParticle(ParticleTypes.DOLPHIN, this.getX() - vec3.x * (double)f2 - (double)f, this.getY() - vec3.y, this.getZ() - vec3.z * (double)f2 - (double)f1, 0.0D, 0.0D, 0.0D);
                 }
             }
 
@@ -245,20 +253,20 @@ public class MantaRayEntity extends WaterAnimal implements IAnimatable {
             this.setYRot(((float) Mth.atan2(face.z, face.x)) * (180F / (float) Math.PI) - 90F);
             this.yBodyRot = this.getYRot();
             this.yHeadRot = this.getYRot();
-            BlockState state = level.getBlockState(feedingPos);
+            BlockState state = level().getBlockState(feedingPos);
             if(random.nextInt(2) == 0 && !state.isAir()){
                 Vec3 mouth = new Vec3(0, this.getBbHeight() * 0.5F, 1.4F);
                 for (int i = 0; i < 4 + random.nextInt(2); i++) {
                     double motX = this.random.nextGaussian() * 0.02D;
                     double motY = 0.1F + random.nextFloat() * 0.2F;
                     double motZ = this.random.nextGaussian() * 0.02D;
-                    level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, state), this.getX() + mouth.x, this.getY() + mouth.y, this.getZ() + mouth.z, motX, motY, motZ);
+                    level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, state), this.getX() + mouth.x, this.getY() + mouth.y, this.getZ() + mouth.z, motX, motY, motZ);
                 }
             }
         }
 
         // Check for nearby creatures
-        List<Entity> nearbyEntities = this.level.getEntities(this, this.getBoundingBox().inflate(8.0D), entity -> entity instanceof LivingEntity && !(entity instanceof Player));
+        List<Entity> nearbyEntities = this.level().getEntities(this, this.getBoundingBox().inflate(8.0D), entity -> entity instanceof LivingEntity && !(entity instanceof Player));
 
         // Apply poison effect to nearby creatures
         for (Entity entity : nearbyEntities) {
@@ -282,7 +290,7 @@ public class MantaRayEntity extends WaterAnimal implements IAnimatable {
             double d0 = this.random.nextGaussian() * 0.01D;
             double d1 = this.random.nextGaussian() * 0.01D;
             double d2 = this.random.nextGaussian() * 0.01D;
-            this.level.addParticle(p_28338_, this.getRandomX(1.0D), this.getRandomY() + 0.2D, this.getRandomZ(1.0D), d0, d1, d2);
+            this.level().addParticle(p_28338_, this.getRandomX(1.0D), this.getRandomY() + 0.2D, this.getRandomZ(1.0D), d0, d1, d2);
         }
 
     }
@@ -343,7 +351,7 @@ public class MantaRayEntity extends WaterAnimal implements IAnimatable {
         }
 
         public boolean canUse() {
-            this.player = this.ManateeEntity.level.getNearestPlayer(ManateeEntity.SWIM_WITH_PLAYER_TARGETING, this.ManateeEntity);
+            this.player = this.ManateeEntity.level().getNearestPlayer(ManateeEntity.SWIM_WITH_PLAYER_TARGETING, this.ManateeEntity);
             if (this.player == null) {
                 return false;
             } else {
@@ -374,7 +382,7 @@ public class MantaRayEntity extends WaterAnimal implements IAnimatable {
     private boolean canSeeBlock(BlockPos destinationBlock) {
         Vec3 Vector3d = new Vec3(this.getX(), this.getEyeY(), this.getZ());
         Vec3 blockVec = net.minecraft.world.phys.Vec3.atCenterOf(destinationBlock);
-        BlockHitResult result = this.level.clip(new ClipContext(Vector3d, blockVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        BlockHitResult result = this.level().clip(new ClipContext(Vector3d, blockVec, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
         return result.getBlockPos().equals(destinationBlock);
     }
 

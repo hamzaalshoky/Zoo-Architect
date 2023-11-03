@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.LeechEntity;
 import net.itshamza.za.entity.custom.LeechEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class LeechModel extends AnimatedGeoModel<LeechEntity> {
+public class LeechModel extends GeoModel<LeechEntity> {
 
     @Override
     public ResourceLocation getModelResource(LeechEntity object) {

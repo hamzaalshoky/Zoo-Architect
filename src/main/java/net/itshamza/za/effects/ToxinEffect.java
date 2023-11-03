@@ -15,7 +15,7 @@ public class ToxinEffect extends MobEffect {
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (lastDuration == 1) {
-            entity.hurt(DamageSource.MAGIC, 50);
+            entity.hurt(entity.level().damageSources().magic(), 50);
         }
     }
 

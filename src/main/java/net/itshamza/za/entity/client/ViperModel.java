@@ -4,9 +4,9 @@ import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.ViperEntity;
 import net.itshamza.za.entity.custom.ViperEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class ViperModel extends AnimatedGeoModel<ViperEntity> {
+public class ViperModel extends GeoModel<ViperEntity> {
 
     @Override
     public ResourceLocation getModelResource(ViperEntity object) {

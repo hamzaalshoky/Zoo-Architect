@@ -3,9 +3,10 @@ package net.itshamza.za.entity.client;
 import net.itshamza.za.ZooArchitect;
 import net.itshamza.za.entity.custom.BassEntity;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class BassModel extends AnimatedGeoModel<BassEntity> {
+
+public class BassModel extends GeoModel<BassEntity> {
 
     @Override
     public ResourceLocation getModelResource(BassEntity object) {
