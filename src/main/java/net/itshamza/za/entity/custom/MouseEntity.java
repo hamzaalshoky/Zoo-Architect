@@ -3,6 +3,7 @@ package net.itshamza.za.entity.custom;
 import net.itshamza.za.entity.ModEntityCreator;
 import net.itshamza.za.entity.custom.ai.CapybaraSleepGoal;
 import net.itshamza.za.item.ModItems;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -154,5 +155,10 @@ public class MouseEntity extends Animal implements IAnimatable{
         } else {
             return super.mobInteract(pPlayer, pHand);
         }
+    }
+
+    public boolean isRemy() {
+        String s = ChatFormatting.stripFormatting(this.getName().getString());
+        return s != null && (s.toLowerCase().contains("remy") || (s.toLowerCase().contains("remmy")));
     }
 }

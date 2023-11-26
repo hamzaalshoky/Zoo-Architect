@@ -3,6 +3,7 @@ package net.itshamza.za.entity.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.itshamza.za.entity.custom.MouseEntity;
+import net.itshamza.za.entity.custom.SalamanderEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -11,6 +12,7 @@ import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
 public class MouseRenderer extends GeoEntityRenderer<MouseEntity> {
     private static final ResourceLocation TEXTURE = new ResourceLocation("za:textures/entity/mouse/mouse.png");
+    private static final ResourceLocation SMAUG = new ResourceLocation("za:textures/entity/mouse/mouse_remy.png");
 
     public MouseRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new MouseModel());
@@ -19,9 +21,8 @@ public class MouseRenderer extends GeoEntityRenderer<MouseEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(MouseEntity instance) {
-        return TEXTURE;
+        return instance.isRemy() ? SMAUG : TEXTURE;
     }
-
 
     @Override
     public RenderType getRenderType(MouseEntity animatable, float partialTicks, PoseStack stack,

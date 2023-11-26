@@ -75,7 +75,7 @@ public class OpossumEntity extends TamableAnimal implements IAnimatable{
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(0, new PanicGoal(this, 1.25D));
         this.goalSelector.addGoal(4, new PlayDeadGoal<>(this, Wolf.class, 8.0F, 2.2D, 2.2D));
-        this.goalSelector.addGoal(4, new PlayDeadGoal<>(this, Fox.class, 8.0F, 2.2D, 2.2D));
+        this.goalSelector.addGoal(4, new PlayDeadGoal<>(this, TimberWolfEntity.class, 8.0F, 2.2D, 2.2D));
         this.goalSelector.addGoal(4, new PlayDeadGoal<>(this, Fox.class, 8.0F, 2.2D, 2.2D));
         this.goalSelector.addGoal(4, new PlayDeadGoal<>(this, FennecFoxEntity.class, 8.0F, 2.2D, 2.2D));
         this.goalSelector.addGoal(3, new FollowOwnerGoal(this, 1.0D, 10.0F, 2.0F, false){
@@ -123,7 +123,7 @@ public class OpossumEntity extends TamableAnimal implements IAnimatable{
             return PlayState.CONTINUE;
         }
 
-        if (event.isMoving()) {
+        if (event.isMoving() && !this.isPlayingDead()) {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("walk", true));
             return PlayState.CONTINUE;
         }

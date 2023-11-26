@@ -15,7 +15,4 @@ public class SteppeEagleEggBlock extends TurtleEggBlock {
         super(p_57058_);
     }
 
-    public static boolean isSand(BlockGetter p_57801_, BlockPos p_57802_) {
-        return p_57801_.getBlockState(p_57802_).is(ModBlocks.STEPPE_EAGLE_NEST.get());
-    }
 }

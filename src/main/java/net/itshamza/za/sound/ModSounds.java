@@ -45,6 +45,9 @@ public class ModSounds {
     public static RegistryObject<SoundEvent> SEAL_AMBIENT
             = registerSoundEvents("seal_ambient");
 
+    public static RegistryObject<SoundEvent> WOLF_HOWL
+            = registerSoundEvents("wolf_howl");
+
     private static RegistryObject<SoundEvent> registerSoundEvents(String name) {
         ResourceLocation id = new ResourceLocation(ZooArchitect.MOD_ID, name);
         return SOUND_EVENTS.register(name, () -> new SoundEvent(id));

@@ -70,5 +70,11 @@
     "sounds": [
       "za:seal_ambient"
     ]
+  },
+  "wolf_howl": {
+    "subtitle": "sounds.za.wolf_howl",
+    "sounds": [
+      "za:wolf_howl"
+    ]
   }
 }

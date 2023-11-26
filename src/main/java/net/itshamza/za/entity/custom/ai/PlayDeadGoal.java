@@ -8,6 +8,7 @@ import net.itshamza.za.entity.custom.OpossumEntity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -15,7 +16,7 @@ import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
-public class PlayDeadGoal<T extends LivingEntity> extends Goal {
+public class PlayDeadGoal<T extends LivingEntity> extends AvoidEntityGoal {
     protected final OpossumEntity mob;
     private final double walkSpeedModifier;
     private final double sprintSpeedModifier;
@@ -44,6 +45,7 @@ public class PlayDeadGoal<T extends LivingEntity> extends Goal {
      * Goal that helps mobs avoid mobs of a specific class
      */
     public PlayDeadGoal(OpossumEntity pMob, Class<T> pEntityClassToAvoid, Predicate<LivingEntity> pAvoidPredicate, float pMaxDistance, double pWalkSpeedModifier, double pSprintSpeedModifier, Predicate<LivingEntity> pPredicateOnAvoidEntity) {
+        super(pMob, pEntityClassToAvoid, pAvoidPredicate, pMaxDistance, pWalkSpeedModifier, pSprintSpeedModifier, pPredicateOnAvoidEntity);
         this.mob = pMob;
         this.avoidClass = pEntityClassToAvoid;
         this.avoidPredicate = pAvoidPredicate;
@@ -98,8 +100,9 @@ public class PlayDeadGoal<T extends LivingEntity> extends Goal {
     /**
      * Execute a one shot task or start executing a continuous task
      */
+    @Override
     public void start() {
-        this.mob.setPlayingDead(true);
+        this.pathNav.moveTo(this.path, this.walkSpeedModifier);
     }
 
     /**
@@ -107,14 +110,15 @@ public class PlayDeadGoal<T extends LivingEntity> extends Goal {
      */
     public void stop() {
         this.toAvoid = null;
-        this.mob.setPlayingDead(false);
     }
 
     /**
      * Keep ticking a continuous task that has already been started
      */
+    @Override
     public void tick() {
-        if (this.mob.distanceToSqr(this.toAvoid) < 25.0D) {
+        if (this.mob.distanceToSqr(this.toAvoid) < 49.0D) {
+            this.mob.getNavigation().setSpeedModifier(0f);
             this.mob.setPlayingDead(true);
         } else {
             this.mob.getNavigation().setSpeedModifier(this.walkSpeedModifier);

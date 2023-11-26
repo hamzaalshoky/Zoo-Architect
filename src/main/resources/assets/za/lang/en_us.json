@@ -60,6 +60,8 @@
   "item.za.cardinal_spawn_egg": "Cardinal Spawn Egg",
   "item.za.mouse_spawn_egg": "Mouse Spawn Egg",
   "item.za.squirrel_spawn_egg": "Squirrel Spawn Egg",
+  "item.za.timber_wolf_spawn_egg": "Timber Wolf Spawn Egg",
+  "item.za.opossum_spawn_egg": "Opossum Spawn Egg",
 
   "item.za.jaguar_tooth": "Jaguar Tooth",
   "item.za.jungle_dagger": "Jungle Dagger",
@@ -89,10 +91,19 @@
   "item.za.raw_bass": "Raw Bass",
   "item.za.cooked_bass": "Cooked Bass",
   "item.za.copepod_meat": "Copepod Meat",
-  "item.za.bass_bucket": "Bass bucket",
+  "item.za.bass_bucket": "Bucket of Bass",
   "item.za.jaguar_fur": "Jaguar Fur",
   "item.za.jaguar_fur_boots": "Jaguar Fur Boots",
   "item.za.dried_sea_lettuce": "Dried Sea Lettuce",
+  "item.za.cheese": "Cheese",
+  "item.za.cheese_sandwich": "Cheese Sandwich",
+  "item.za.cheesecake": "Cheesecake",
+  "item.za.rat_poison": "Rat Poison",
+  "item.za.raw_venison": "Raw Venison",
+  "item.za.cooked_venison": "Cooked Venison",
+  "item.za.acorn": "Acorn",
+  "item.za.acorn_butter": "Acorn Butter",
+  "item.za.acorn_bread": "Acorn Bread",
 
   "block.za.pineapple": "Pineapple Block",
   "block.za.steppe_eagle_egg": "Steppe Eagle Egg",
@@ -105,6 +116,8 @@
   "block.za.stone_path": "Stone Path",
   "block.za.sea_urchin": "Sea Urchin",
   "block.za.sea_lettuce": "Sea Lettuce",
+  "block.za.hollow_log": "Hollow Oak Log",
+  "block.za.birch_hollow_log": "Hollow Birch Log",
 
   "itemGroup.africa_tab": "Zoo Architect",
 

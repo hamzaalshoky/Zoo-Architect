@@ -102,38 +102,6 @@ public class SalamanderEntity extends Animal implements IAnimatable{
                 0, this::predicate));
     }
 
-    public void baseTick() {
-        int i = this.getAirSupply();
-        super.baseTick();
-        if (!this.isNoAi()) {
-            this.handleAirSupply(i);
-        }
-
-    }
-
-    protected void handleAirSupply(int p_149194_) {
-        if (this.isAlive() && !this.isInWaterRainOrBubble()) {
-            this.setAirSupply(p_149194_ - 1);
-            if (this.getAirSupply() == -20) {
-                this.setAirSupply(0);
-                this.hurt(DamageSource.DRY_OUT, 2.0F);
-            }
-        } else {
-            this.setAirSupply(this.getMaxAirSupply());
-        }
-
-    }
-
-    public void rehydrate() {
-        int i = this.getAirSupply() + 1800;
-        this.setAirSupply(Math.min(i, this.getMaxAirSupply()));
-    }
-
-    public int getMaxAirSupply() {
-        return 6000;
-    }
-
-
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob p_146744_) {
@@ -145,30 +113,6 @@ public class SalamanderEntity extends Animal implements IAnimatable{
     public AnimationFactory getFactory() {
         return factory;
     }
-
-    @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        ItemStack itemstack = player.getItemInHand(hand);
-        Item item = itemstack.getItem();
-
-        Item itemForPebble = Items.GLASS_BOTTLE;
-
-        if (item == itemForPebble && itemForPebble.canBeDepleted()) {
-            if (this.level.isClientSide) {
-                return InteractionResult.CONSUME;
-            } else {
-                if (!player.getAbilities().instabuild) {
-                    itemstack.use(this.level, player, hand);
-                }
-                rehydrate();
-
-                return InteractionResult.SUCCESS;
-            }
-        }
-
-        return super.mobInteract(player, hand);
-    }
-
 
     public boolean isSmaug() {
         String s = ChatFormatting.stripFormatting(this.getName().getString());
@@ -196,9 +140,5 @@ public class SalamanderEntity extends Animal implements IAnimatable{
                 timeUntilNextDrop = 40; // 2 seconds (20 ticks per second)
             }
         }
-    }
-
-    public void tick(){
-
     }
 }

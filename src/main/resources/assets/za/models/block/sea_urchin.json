@@ -2,7 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
-		"1": "za:block/sea_urchin"
+		"1": "za:block/sea_urchin",
+		"particle": "za:block/sea_urchin"
 	},
 	"elements": [
 		{

@@ -31,10 +31,6 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> STEPPE_EAGLE_EGG = registerBlock("steppe_eagle_egg",
             () -> new SteppeEagleEggBlock(BlockBehaviour.Properties.of(Material.EGG, MaterialColor.TERRACOTTA_WHITE).strength(0.2F).sound(SoundType.WOOD)), ModCreativeModeTabs.AFRICA_TAB);
-
-    public static final RegistryObject<Block> STEPPE_EAGLE_NEST = registerBlock("steppe_eagle_nest",
-            () -> new SteppeEagleEggBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.TERRACOTTA_BROWN).strength(0.5F).sound(SoundType.WOOL)), ModCreativeModeTabs.AFRICA_TAB);
-
     public static final RegistryObject<Block> CATTAIL = registerBlock("cattail",
             () -> new CattailBlock(BlockBehaviour.Properties.of(Material.GRASS, MaterialColor.COLOR_LIGHT_GREEN).strength(0.1F).sound(SoundType.GRASS)), ModCreativeModeTabs.AFRICA_TAB);
 
@@ -53,6 +49,10 @@ public class ModBlocks {
             () -> new SeaUrchinBlock(BlockBehaviour.Properties.of(Material.CACTUS, MaterialColor.COLOR_PURPLE).noCollission().strength(0.2F).sound(SoundType.BAMBOO)), ModCreativeModeTabs.AFRICA_TAB);
     public static final RegistryObject<Block> SEA_LETTUCE = registerBlock("sea_lettuce",
             () -> new KelpBlock(BlockBehaviour.Properties.of(Material.DECORATION, MaterialColor.COLOR_LIGHT_GREEN).noCollission().strength(0.1F).sound(SoundType.LILY_PAD)), ModCreativeModeTabs.AFRICA_TAB);
+    public static final RegistryObject<Block> HOLLOW_LOG = registerBlock("hollow_log",
+            () -> new Block(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).sound(SoundType.WOOD)), ModCreativeModeTabs.AFRICA_TAB);
+    public static final RegistryObject<Block> BIRCH_HOLLOW_LOG = registerBlock("birch_hollow_log",
+            () -> new Block(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).sound(SoundType.WOOD)), ModCreativeModeTabs.AFRICA_TAB);
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block, CreativeModeTab tab) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

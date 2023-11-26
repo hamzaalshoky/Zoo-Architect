@@ -56,4 +56,13 @@ public class ModFoods {
             .build();
     public static final FoodProperties DRIED_LETTUCE = new FoodProperties.Builder().nutrition(1).saturationMod(0.3f)
             .build();
+
+    public static final FoodProperties RAW_VENISON = new FoodProperties.Builder().nutrition(5).saturationMod(0.5f)
+            .meat().build();
+
+    public static final FoodProperties COOKED_VENISON = new FoodProperties.Builder().nutrition(7).saturationMod(0.7f)
+            .meat().build();
+
+    public static final FoodProperties ACORN_BREAD = new FoodProperties.Builder().nutrition(4).saturationMod(0.6f)
+            .build();
 }

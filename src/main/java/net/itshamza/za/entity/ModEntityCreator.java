@@ -53,6 +53,7 @@ public class ModEntityCreator {
     public static final RegistryObject<EntityType<MouseEntity>> MOUSE = ENTITY_TYPES.register("mouse", () -> EntityType.Builder.of(MouseEntity::new, MobCategory.CREATURE).sized(0.6F, 0.4F).build(new ResourceLocation(ZooArchitect.MOD_ID, "mouse").toString()));
     public static final RegistryObject<EntityType<SquirrelEntity>> SQUIRREL = ENTITY_TYPES.register("squirrel", () -> EntityType.Builder.of(SquirrelEntity::new, MobCategory.CREATURE).sized(0.7F, 0.6F).build(new ResourceLocation(ZooArchitect.MOD_ID, "squirrel").toString()));
     public static final RegistryObject<EntityType<OpossumEntity>> OPOSSUM = ENTITY_TYPES.register("opossum", () -> EntityType.Builder.of(OpossumEntity::new, MobCategory.CREATURE).sized(1F, 0.7F).build(new ResourceLocation(ZooArchitect.MOD_ID, "opossum").toString()));
+    public static final RegistryObject<EntityType<TimberWolfEntity>> TIMBER_WOLF = ENTITY_TYPES.register("timber_wolf", () -> EntityType.Builder.of(TimberWolfEntity::new, MobCategory.CREATURE).sized(1.1F, 1.2F).build(new ResourceLocation(ZooArchitect.MOD_ID, "timber_wolf").toString()));
     // ATTRIBUTES
 
     @SubscribeEvent
@@ -88,6 +89,7 @@ public class ModEntityCreator {
         event.put(ModEntityCreator.MOUSE.get(), MouseEntity.setAttributes());
         event.put(ModEntityCreator.SQUIRREL.get(), SquirrelEntity.setAttributes());
         event.put(ModEntityCreator.OPOSSUM.get(), OpossumEntity.setAttributes());
+        event.put(ModEntityCreator.TIMBER_WOLF.get(), TimberWolfEntity.setAttributes());
     }
 
     // RENDERERS
@@ -125,6 +127,7 @@ public class ModEntityCreator {
         event.registerEntityRenderer(ModEntityCreator.MOUSE.get(), MouseRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.SQUIRREL.get(), SquirrelRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.OPOSSUM.get(), OpossumRenderer::new);
+        event.registerEntityRenderer(ModEntityCreator.TIMBER_WOLF.get(), TimberWolfRenderer::new);
     }
 
     public static void register(IEventBus eventBus) {

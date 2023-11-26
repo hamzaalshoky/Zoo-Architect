@@ -239,7 +239,7 @@ public class SteppeEagleEntity extends Animal implements IAnimatable, FlyingAnim
 
         @Override
         public boolean isStableDestination(BlockPos pos) {
-            return super.isStableDestination(pos) && this.mob.level.getBlockState(pos).is(ModBlocks.STEPPE_EAGLE_NEST.get());
+            return super.isStableDestination(pos);
         }
     }
 

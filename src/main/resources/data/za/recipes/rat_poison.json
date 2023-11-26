@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " # ",
+    " B#"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:spider_eye"
+    },
+    "B": {
+      "item": "minecraft:glass_bottle"
+    }
+  },
+  "result": {
+    "item": "za:rat_poison"
+  }
+}

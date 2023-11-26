@@ -1,0 +1,13 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": [
+    "minecraft:forest",
+    "minecraft:birch_forest"
+  ],
+  "spawners": {
+    "type": "za:cardinal",
+    "weight": 30,
+    "minCount": 4,
+    "maxCount": 8
+  }
+}
