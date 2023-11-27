@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    " E "
+
+  ],
+  "key": {
+    "A": {
+      "item": "za:acorn_butter"
+    },
+    "E": {
+      "item": "minecraft:bread"
+    }
+  },
+  "result": {
+    "item": "za:acorn_bread"
+  }
+}

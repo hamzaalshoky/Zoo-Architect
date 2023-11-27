@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " B ",
+    "#B#",
+    " B "
+  ],
+  "key": {
+    "#": {
+      "item": "za:antler"
+    },
+    "B": {
+      "item": "minecraft:leather"
+    }
+  },
+  "result": {
+    "item": "za:antler_trophy"
+  }
+}

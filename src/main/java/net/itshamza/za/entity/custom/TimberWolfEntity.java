@@ -97,7 +97,7 @@ public class TimberWolfEntity extends Animal implements IAnimatable {
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Pig.class, 5, true, true, (Predicate<LivingEntity>)null));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Sheep.class, 5, true, true, (Predicate<LivingEntity>)null));
         this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Horse.class, 5, true, true, (Predicate<LivingEntity>)null));
-        //this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, DeerEntity.class, 5, true, true, (Predicate<LivingEntity>)null));
+        this.targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, DeerEntity.class, 5, true, true, (Predicate<LivingEntity>)null));
         this.goalSelector.addGoal(4, new WolfAIJostle(this));
         this.goalSelector.addGoal(4, new TimberWolfEntityAttackPlayersGoal());
         this.goalSelector.addGoal(4, new TimberWolfEntityHurtByTargetGoal());

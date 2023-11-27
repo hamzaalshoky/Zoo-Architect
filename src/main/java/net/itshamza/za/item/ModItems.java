@@ -118,9 +118,29 @@ public class ModItems {
     public static final RegistryObject<Item> SHARK_SPAWN_EGG = ITEMS.register("shark_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntityCreator.SHARK,3751495, 13421772,
                     new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
-
     public static final RegistryObject<Item> MANTA_RAY_SPAWN_EGG = ITEMS.register("manta_ray_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntityCreator.MANTA_RAY,1776415, 12434879,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+    public static final RegistryObject<Item> SALAMANDER_SPAWN_EGG = ITEMS.register("salamander_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.SALAMANDER,1384229, 12493845,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+    public static final RegistryObject<Item> MOUSE_SPAWN_EGG = ITEMS.register("mouse_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.MOUSE,6902851, 4339244,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+    public static final RegistryObject<Item> CARDINAL_SPAWN_EGG = ITEMS.register("cardinal_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.CARDINAL,16252968, 0,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+    public static final RegistryObject<Item> SQUIRREL_SPAWN_EGG = ITEMS.register("squirrel_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.SQUIRREL,7227967, 7493710,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+    public static final RegistryObject<Item> OPOSSUM_SPAWN_EGG = ITEMS.register("opossum_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.OPOSSUM,8224125, 13090489,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+    public static final RegistryObject<Item> TIMBER_WOLF_SPAWN_EGG = ITEMS.register("timber_wolf_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.TIMBER_WOLF,6381662, 3092270,
+                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
+    public static final RegistryObject<Item> DEER_SPAWN_EGG = ITEMS.register("deer_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntityCreator.DEER,7423029, 10652546,
                     new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
     public static final RegistryObject<Item> JAGUAR_TOOTH = ITEMS.register("jaguar_tooth",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
@@ -229,14 +249,6 @@ public class ModItems {
    public static final RegistryObject<Item> DRIED_SEA_LETTUCE = ITEMS.register("dried_sea_lettuce",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB).food(ModFoods.DRIED_LETTUCE)));
 
-   public static final RegistryObject<Item> SALAMANDER_SPAWN_EGG = ITEMS.register("salamander_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntityCreator.SALAMANDER,1384229, 12493845,
-                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
-
-   public static final RegistryObject<Item> CARDINAL_SPAWN_EGG = ITEMS.register("cardinal_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntityCreator.CARDINAL,16252968, 0,
-                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
-
     public static final RegistryObject<Item> CHEESE = ITEMS.register("cheese",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB).food(ModFoods.CHEESE)));
 
@@ -246,20 +258,8 @@ public class ModItems {
     public static final RegistryObject<Item> CHEESECAKE = ITEMS.register("cheesecake",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB).food(ModFoods.CHEESECAKE)));
 
-    public static final RegistryObject<Item> MOUSE_SPAWN_EGG = ITEMS.register("mouse_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntityCreator.MOUSE,6902851, 4339244,
-                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
-
     public static final RegistryObject<Item> RAT_POISON = ITEMS.register("rat_poison",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
-
-    public static final RegistryObject<Item> SQUIRREL_SPAWN_EGG = ITEMS.register("squirrel_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntityCreator.SQUIRREL,7227967, 7493710,
-                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
-
-    public static final RegistryObject<Item> OPOSSUM_SPAWN_EGG = ITEMS.register("opossum_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntityCreator.OPOSSUM,8224125, 13090489,
-                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
 
     public static final RegistryObject<Item> RAW_VENISON = ITEMS.register("raw_venison",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB).food(ModFoods.RAW_VENISON)));
@@ -267,9 +267,6 @@ public class ModItems {
     public static final RegistryObject<Item> COOKED_VENISON = ITEMS.register("cooked_venison",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB).food(ModFoods.COOKED_VENISON)));
 
-    public static final RegistryObject<Item> TIMBER_WOLF_SPAWN_EGG = ITEMS.register("timber_wolf_spawn_egg",
-            () -> new ForgeSpawnEggItem(ModEntityCreator.TIMBER_WOLF,6381662, 3092270,
-                    new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
     public static final RegistryObject<Item> ACORN = ITEMS.register("acorn",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
 
@@ -278,6 +275,8 @@ public class ModItems {
 
     public static final RegistryObject<Item> ACORN_BREAD = ITEMS.register("acorn_bread",
             () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB).food(ModFoods.ACORN_BREAD)));
+    public static final RegistryObject<Item> ANTLER = ITEMS.register("antler",
+            () -> new Item(new Item.Properties().tab(ModCreativeModeTabs.AFRICA_TAB)));
 
    public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

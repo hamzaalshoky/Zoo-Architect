@@ -54,6 +54,7 @@ public class ModEntityCreator {
     public static final RegistryObject<EntityType<SquirrelEntity>> SQUIRREL = ENTITY_TYPES.register("squirrel", () -> EntityType.Builder.of(SquirrelEntity::new, MobCategory.CREATURE).sized(0.7F, 0.6F).build(new ResourceLocation(ZooArchitect.MOD_ID, "squirrel").toString()));
     public static final RegistryObject<EntityType<OpossumEntity>> OPOSSUM = ENTITY_TYPES.register("opossum", () -> EntityType.Builder.of(OpossumEntity::new, MobCategory.CREATURE).sized(1F, 0.7F).build(new ResourceLocation(ZooArchitect.MOD_ID, "opossum").toString()));
     public static final RegistryObject<EntityType<TimberWolfEntity>> TIMBER_WOLF = ENTITY_TYPES.register("timber_wolf", () -> EntityType.Builder.of(TimberWolfEntity::new, MobCategory.CREATURE).sized(1.1F, 1.2F).build(new ResourceLocation(ZooArchitect.MOD_ID, "timber_wolf").toString()));
+    public static final RegistryObject<EntityType<DeerEntity>> DEER = ENTITY_TYPES.register("deer", () -> EntityType.Builder.of(DeerEntity::new, MobCategory.CREATURE).sized(0.9F, 1.4F).build(new ResourceLocation(ZooArchitect.MOD_ID, "deer").toString()));
     // ATTRIBUTES
 
     @SubscribeEvent
@@ -90,6 +91,7 @@ public class ModEntityCreator {
         event.put(ModEntityCreator.SQUIRREL.get(), SquirrelEntity.setAttributes());
         event.put(ModEntityCreator.OPOSSUM.get(), OpossumEntity.setAttributes());
         event.put(ModEntityCreator.TIMBER_WOLF.get(), TimberWolfEntity.setAttributes());
+        event.put(ModEntityCreator.DEER.get(), DeerEntity.setAttributes());
     }
 
     // RENDERERS
@@ -128,6 +130,7 @@ public class ModEntityCreator {
         event.registerEntityRenderer(ModEntityCreator.SQUIRREL.get(), SquirrelRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.OPOSSUM.get(), OpossumRenderer::new);
         event.registerEntityRenderer(ModEntityCreator.TIMBER_WOLF.get(), TimberWolfRenderer::new);
+        event.registerEntityRenderer(ModEntityCreator.DEER.get(), DeerRenderer::new);
     }
 
     public static void register(IEventBus eventBus) {

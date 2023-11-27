@@ -50,9 +50,12 @@ public class ModBlocks {
     public static final RegistryObject<Block> SEA_LETTUCE = registerBlock("sea_lettuce",
             () -> new KelpBlock(BlockBehaviour.Properties.of(Material.DECORATION, MaterialColor.COLOR_LIGHT_GREEN).noCollission().strength(0.1F).sound(SoundType.LILY_PAD)), ModCreativeModeTabs.AFRICA_TAB);
     public static final RegistryObject<Block> HOLLOW_LOG = registerBlock("hollow_log",
-            () -> new Block(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).sound(SoundType.WOOD)), ModCreativeModeTabs.AFRICA_TAB);
+            () -> new Block(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).strength(2.0f).sound(SoundType.WOOD)), ModCreativeModeTabs.AFRICA_TAB);
     public static final RegistryObject<Block> BIRCH_HOLLOW_LOG = registerBlock("birch_hollow_log",
-            () -> new Block(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).sound(SoundType.WOOD)), ModCreativeModeTabs.AFRICA_TAB);
+            () -> new Block(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).strength(2.0f).sound(SoundType.WOOD)), ModCreativeModeTabs.AFRICA_TAB);
+
+    public static final RegistryObject<Block> ANTLER_TROPHY = registerBlock("antler_trophy",
+            () -> new KelpBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.WOOD).strength(1.0F).sound(SoundType.WOOD)), ModCreativeModeTabs.AFRICA_TAB);
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block, CreativeModeTab tab) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);

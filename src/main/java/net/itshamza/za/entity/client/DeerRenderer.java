@@ -2,30 +2,30 @@ package net.itshamza.za.entity.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.itshamza.za.entity.custom.OpossumEntity;
+import net.itshamza.za.ZooArchitect;
+import net.itshamza.za.entity.custom.DeerEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 
-public class OpossumRenderer extends GeoEntityRenderer<OpossumEntity> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation("za:textures/entity/opossum/opossum.png");
-    private static final ResourceLocation OPOSSUM = new ResourceLocation("za:textures/entity/opossum/opossum_aggro.png");
+public class DeerRenderer extends GeoEntityRenderer<DeerEntity> {
 
-    public OpossumRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new OpossumModel());
+    public DeerRenderer(EntityRendererProvider.Context renderManager) {
+        super(renderManager, new DeerModel());
         this.shadowRadius = 0.3f;
     }
 
     @Override
-    public ResourceLocation getTextureLocation(OpossumEntity instance) {
-        return instance.level.isNight() ? OPOSSUM : TEXTURE;
+    public ResourceLocation getTextureLocation(DeerEntity instance) {
+        return !instance.hasMane() || instance.isBaby() ? new ResourceLocation(ZooArchitect.MOD_ID, "textures/entity/deer/deeress.png") :
+                new ResourceLocation(ZooArchitect.MOD_ID, "textures/entity/deer/deer.png");
     }
 
 
     @Override
-    public RenderType getRenderType(OpossumEntity animatable, float partialTicks, PoseStack stack,
+    public RenderType getRenderType(DeerEntity animatable, float partialTicks, PoseStack stack,
                                     MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn,
                                     ResourceLocation textureLocation) {
         if(animatable.isBaby()){

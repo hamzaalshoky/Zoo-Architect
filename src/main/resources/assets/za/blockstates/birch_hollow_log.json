@@ -1,15 +1,15 @@
 {
   "variants": {
     "axis=x": {
-      "model": "za:block/birch_log_horizontal",
+      "model": "za:block/birch_hollow_log_horizontale",
       "x": 90,
       "y": 90
     },
     "axis=y": {
-      "model": "za:block/birch_log"
+      "model": "za:block/birch_hollow_log"
     },
     "axis=z": {
-      "model": "za:block/birch_log_horizontal",
+      "model": "za:block/birch_hollow_log_horizontal",
       "x": 90
     }
   }

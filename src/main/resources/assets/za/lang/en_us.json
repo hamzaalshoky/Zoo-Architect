@@ -62,6 +62,7 @@
   "item.za.squirrel_spawn_egg": "Squirrel Spawn Egg",
   "item.za.timber_wolf_spawn_egg": "Timber Wolf Spawn Egg",
   "item.za.opossum_spawn_egg": "Opossum Spawn Egg",
+  "item.za.deer_spawn_egg": "Deer Spawn Egg",
 
   "item.za.jaguar_tooth": "Jaguar Tooth",
   "item.za.jungle_dagger": "Jungle Dagger",
@@ -104,6 +105,7 @@
   "item.za.acorn": "Acorn",
   "item.za.acorn_butter": "Acorn Butter",
   "item.za.acorn_bread": "Acorn Bread",
+  "item.za.antler": "Deer Antler",
 
   "block.za.pineapple": "Pineapple Block",
   "block.za.steppe_eagle_egg": "Steppe Eagle Egg",
@@ -118,6 +120,7 @@
   "block.za.sea_lettuce": "Sea Lettuce",
   "block.za.hollow_log": "Hollow Oak Log",
   "block.za.birch_hollow_log": "Hollow Birch Log",
+  "block.za.antler_trophy": "Deer Antler Trophy",
 
   "itemGroup.africa_tab": "Zoo Architect",
 
